@@ -1,4 +1,13 @@
 import { app, BrowserWindow, nativeTheme } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import DatabaseService from '../../src/backend/app/Database/DatabaseService';
+
+const createAppDir = () => {
+  const appDataDir = path.join(process.env.LOCALAPPDATA || process.env.HOME, 'MyApp');
+  global.appDataDir = appDataDir;
+  fs.mkdirSync(appDataDir, { recursive: true });
+};
 
 try {
   if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
@@ -42,9 +51,15 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', async () => {
+  createAppDir();
+  global.databaseService = new DatabaseService();
+  await global.databaseService.initDatabase();
+  createWindow();
+});
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  await global.databaseService.knex.destroy();
   if (process.platform !== 'darwin') {
     app.quit();
   }
