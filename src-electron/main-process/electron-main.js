@@ -3,6 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import DatabaseService from '../../src/backend/app/Database/DatabaseService';
 
+import { fetchCheckpointEventsSend, fetchCheckpointEventsByPageNumSend } from './checkpointEventStore';
+
+const { ipcMain } = require('electron');
+
 const createAppDir = () => {
   const appDataDir = path.join(process.env.LOCALAPPDATA || process.env.HOME, 'MyApp');
   global.appDataDir = appDataDir;
@@ -38,9 +42,10 @@ function createWindow() {
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: process.env.QUASAR_NODE_INTEGRATION,
       nodeIntegrationInWorker: process.env.QUASAR_NODE_INTEGRATION,
-
+      // contextIsolation: true,
+      preload: path.resolve(__dirname, 'electron-preload.js'),
       // More info: /quasar-cli/developing-electron-apps/electron-preload-script
-      // preload: path.resolve(__dirname, 'electron-preload.js')
+      // preload: path.resolve(__dirname, 'electron-electron-preload.js')
     },
   });
 
@@ -69,4 +74,14 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+ipcMain.on('fetchCheckpointEventsSend', (event) => {
+  const { knex } = global.databaseService;
+  fetchCheckpointEventsSend(event, knex);
+});
+
+ipcMain.on('fetchCheckpointEventsByPageNumSend', (event, page) => {
+  const { knex } = global.databaseService;
+  fetchCheckpointEventsByPageNumSend(event, knex, page);
 });
