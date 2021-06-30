@@ -48,26 +48,21 @@ export default {
   async beforeMount() {
     window.send('fetchCheckpointEventsSend');
     window.recieve('fetchCheckpointEventsRecieve', (dataForTable, pagesNum) => {
-      console.log(dataForTable);
       this.data = dataForTable;
       this.totalNum = pagesNum;
-      console.log(this.data);
     });
   },
 
   methods: {
     handlePage(e) {
       this.page = e;
-      console.log(this.page);
       this.changeVisibleTableContent(this.page - 1);
     },
 
     changeVisibleTableContent(page) {
       window.send('fetchCheckpointEventsByPageNumSend', page);
       window.recieve('fetchCheckpointEventsByPageNumRecieve', (dataForTable) => {
-        console.log(dataForTable);
         this.data = dataForTable;
-        console.log(this.data);
       });
     },
   },

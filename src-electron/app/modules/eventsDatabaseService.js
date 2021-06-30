@@ -1,6 +1,6 @@
 import {
   setDate,
-} from '../../src/utils/helper';
+} from '../utils/helper';
 
 const state = {
   checkpointEventListForTable: [],
