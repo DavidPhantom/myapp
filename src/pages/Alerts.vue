@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <q-table
       title="Alerts"
-      :data="data"
+      :data="alerts"
       :columns="columns"
       row-key="name"
     >
@@ -14,7 +14,7 @@
             no-caps
             flat
             dense
-            @click="removeRow(data.indexOf(props.row))"
+            @click="removeRow(alerts.indexOf(props.row))"
           />
         </q-td>
       </template>
@@ -44,6 +44,13 @@
 
 <script>
 import ModalWindow from 'src/components/ModalWindow.vue';
+import {
+  ALERTS,
+} from 'src/store/modules/alerts/getters';
+import {
+  ADD_NEW_ALERT_ACTION,
+  REMOVE_ALERT,
+} from 'src/store/modules/alerts/actions';
 
 export default {
   name: 'Alerts',
@@ -86,19 +93,12 @@ export default {
           field: 'action',
         },
       ],
-      data: [
-        {
-          id: '1',
-          type: 'E-mail',
-          address: 'test@test.ru',
-        },
-        {
-          id: '2',
-          type: 'E-mail',
-          address: 'test@test.ru',
-        },
-      ],
     };
+  },
+  computed: {
+    alerts() {
+      return this.$store.getters[ALERTS];
+    },
   },
   methods: {
     plug() {
@@ -106,11 +106,8 @@ export default {
         this.emailIsIncorrect = true;
         return false;
       }
-      this.data.push({
-        id: this.data.length,
-        type: 'E-mail',
-        address: this.email,
-      });
+      this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
+      this.email = '';
       return true;
     },
 
@@ -119,9 +116,7 @@ export default {
     },
 
     removeRow(rowIdx) {
-      this.data = [
-        ...this.data.filter((row, idx) => idx !== rowIdx),
-      ];
+      this.$store.dispatch(REMOVE_ALERT, rowIdx);
     },
 
     handlePage(e) {
