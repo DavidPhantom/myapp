@@ -1,95 +1,87 @@
 <template>
-  <div class="q-pa-md">
-    <q-btn color="primary" :disable="loading" label="Add row" @click="addRow" />
-    <q-table
-      title="Events"
-      :data="data"
-      :columns="columns"
-      row-key="name"
-      :loading="loading"
-    />
-    <q-pagination
-      v-model="current"
-      :max="pagesNum"
-      @input="handlePage"
-    />
+  <div>
+    <q-layout view="hHh Lpr lff" container style="height: 100vh">
+      <q-header elevated class="bg-black">
+        <q-toolbar>
+          <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
+          <q-toolbar-title>Header</q-toolbar-title>
+        </q-toolbar>
+      </q-header>
+      <q-drawer
+        v-model="drawer"
+        show-if-above
+        :width="191"
+        :breakpoint="700"
+        elevated
+        content-class="bg-primary text-white"
+      >
+        <q-scroll-area class="fit">
+          <div class="q-pa-sm">
+            <button
+              class="drawer__link"
+              v-for="link in linksList"
+              v-bind:key="link.id"
+              :data-route="link.route"
+              @click="goTo"
+            >
+              {{ link.title }}
+            </button>
+          </div>
+        </q-scroll-area>
+      </q-drawer>
+
+      <q-page-container>
+        <router-view />
+      </q-page-container>
+    </q-layout>
   </div>
 </template>
 
 <script>
-
-import { getTodayUnixTimestamp } from '../../src-electron/app/utils/helper';
-
+const linksList = [
+  {
+    title: 'Home',
+    route: '/',
+    id: 0,
+  },
+  {
+    title: 'Events',
+    route: '/events',
+    id: 1,
+  },
+  {
+    title: 'Alerts',
+    route: '/alerts',
+    id: 2,
+  },
+];
 export default {
   data() {
     return {
-      loading: false,
-      current: 1,
-      page: 0,
-      pagesNum: 0,
-      countEvents: 0,
-      columns: [
-        {
-          name: 'id',
-          required: true,
-          label: 'ID',
-          align: 'left',
-          field: 'id',
-          sortable: true,
-        },
-        {
-          name: 'plate', align: 'center', label: 'Plate', field: 'plate', sortable: true,
-        },
-        {
-          name: 'date', align: 'center', label: 'Date', field: 'date', sortable: true,
-        },
-        {
-          name: 'camera', align: 'center', label: 'Camera', field: 'camera',
-        },
-        {
-          name: 'edit_remove', align: 'center', label: 'EDIT/REMOVE', field: 'edit_remove',
-        },
-      ],
-      data: [
-      ],
+      drawer: false,
+      linksList,
     };
   },
-  async beforeMount() {
-    window.send('fetchCheckpointEventsSend');
-    window.recieve('fetchCheckpointEventsRecieve', (dataForTable, pagesNum, countEvents) => {
-      this.data = dataForTable;
-      this.pagesNum = pagesNum;
-      this.countEvents = countEvents;
-    });
-  },
-
   methods: {
-    handlePage(e) {
-      this.page = e;
-      this.changeVisibleTableContent(this.page - 1);
-    },
-
-    addRow() {
-      this.loading = true;
-      setTimeout(() => {
-        const dateCur = getTodayUnixTimestamp();
-        const row = { plate: 'PORTAL', date: dateCur, camera: 'NINIDZE' };
-        window.send('fetchCheckpointEventsAddEvent', row);
-        window.recieve('fetchCheckpointEventsAddEventRecieve', (pagesNum, countEvents) => {
-          this.pagesNum = pagesNum;
-          this.countEvents = countEvents;
-        });
-        this.changeVisibleTableContent(this.page - 1);
-        this.loading = false;
-      }, 500);
-    },
-
-    changeVisibleTableContent(page) {
-      window.send('fetchCheckpointEventsByPageNumSend', page);
-      window.recieve('fetchCheckpointEventsByPageNumRecieve', (dataForTable) => {
-        this.data = dataForTable;
-      });
+    goTo(e) {
+      const { route } = e.target.dataset;
+      this.$router.push(route);
     },
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.drawer__link {
+  display: block;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0em;
+  color: #fff;
+  text-decoration: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+</style>
