@@ -51,8 +51,8 @@ const linksList = [
     id: 1,
   },
   {
-    title: 'Mails',
-    route: '/mails',
+    title: 'Alerts',
+    route: '/alerts',
     id: 2,
   },
 ];
