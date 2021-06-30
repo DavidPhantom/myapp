@@ -3,7 +3,11 @@ import path from 'path';
 import fs from 'fs';
 import DatabaseService from '../app/Database/DatabaseService';
 
-import { fetchCheckpointEventsSend, fetchCheckpointEventsByPageNumSend } from '../app/modules/eventsDatabaseService';
+import {
+  fetchCheckpointEventsSend,
+  fetchCheckpointEventsByPageNumSend,
+  fetchCheckpointEventsAddEvent,
+} from '../app/modules/eventsDatabaseService';
 
 const { ipcMain } = require('electron');
 
@@ -83,4 +87,8 @@ ipcMain.on('fetchCheckpointEventsSend', (event) => {
 
 ipcMain.on('fetchCheckpointEventsByPageNumSend', (event, page) => {
   fetchCheckpointEventsByPageNumSend(event, global.knex, page);
+});
+
+ipcMain.on('fetchCheckpointEventsAddEvent', (event, row) => {
+  fetchCheckpointEventsAddEvent(event, global.knex, row);
 });

@@ -31,8 +31,8 @@ export function convertToJsTimestamp(unixTimestamp) {
 }
 
 export function setDate(data) {
-  data.forEach((item, i, data) => {
-    data[i].date = generateDateFromJSTimestamp(convertToJsTimestamp(item.date));
+  data.forEach((item, i, dataLocal) => {
+    dataLocal[i].date = generateDateFromJSTimestamp(convertToJsTimestamp(item.date));
   });
   return data;
 }
