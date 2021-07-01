@@ -10,10 +10,12 @@
       <q-card-section align="right">
         <form
           @submit.prevent.stop="plug"
+          style="min-width: 240px"
         >
           <q-input
             v-model="email"
-            filled type="email"
+            filled
+            type="email"
             :rules="[val => !!val || 'Email is missing', isValidEmail]"
           />
 

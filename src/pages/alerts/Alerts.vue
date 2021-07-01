@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-pl-md q-pt-md">
     <q-btn label="Add alert" color="primary" @click="openCreator" />
 
     <q-table
@@ -10,6 +10,7 @@
       :filter="filter"
       :filter-method="addressFilter"
       binary-state-sort
+      class="q-mt-md"
     >
       <template v-slot:body-cell-id="props">
         <q-td :props="props">

@@ -10,6 +10,7 @@
       <q-card-section align="right">
         <form
           @submit.prevent.stop="edit"
+          style="min-width: 240px"
         >
           <q-input
             v-model="email"
@@ -37,9 +38,6 @@ export default {
       email: '',
       editAlertModalWindowIsOpened: false,
     };
-  },
-  mounted() {
-    this.email = this.emailToEdit;
   },
   methods: {
     open(email, rowIdx) {
