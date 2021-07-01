@@ -40,26 +40,20 @@
           <q-btn addAlertModalWindowIsOpened="close" flat round dense v-close-popup />
         </q-card-section>
 
-        <q-card-section>
-          <form class="common-form" v-on:submit.prevent="">
-            <input
-              type="email"
-              :class="
-                emailIsIncorrect && 'common-form__error-input'
-              "
-              placeholder="email"
+        <q-card-section align="right">
+          <form
+            @submit.prevent.stop="plug"
+          >
+            <q-input
               v-model="email"
-              @input="handleEmail"
+              filled type="email"
+              :rules="[val => !!val || 'Email is missing', isValidEmail]"
             />
-            <div class="common-form__error-text">
-              <span v-if="emailIsIncorrect">{{ $t('enterCorrectEmail') }}</span>
-            </div>
+
+            <q-btn label="OK" type="submit" color="primary" />
           </form>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" @click="plug" />
-        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -80,11 +74,7 @@ export default {
     return {
       addAlertModalWindowIsOpened: false,
       filter: '',
-      current: 1,
-      page: 0,
-      totalNum: 0,
       email: '',
-      emailIsIncorrect: false,
       columns: [
         {
           name: 'id',
@@ -122,18 +112,16 @@ export default {
     },
   },
   methods: {
-    plug() {
-      if (!this.email.match(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/)) {
-        this.emailIsIncorrect = true;
-        return false;
-      }
-      this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
-      this.email = '';
-      return true;
+    isValidEmail() {
+      const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+      return this.email.match(emailPattern) || 'Invalid email';
     },
 
-    handleEmail() {
-      this.emailIsIncorrect = false;
+    plug() {
+      this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
+      this.email = '';
+      this.addAlertModalWindowIsOpened = false;
+      return true;
     },
 
     removeRow(rowIdx) {
