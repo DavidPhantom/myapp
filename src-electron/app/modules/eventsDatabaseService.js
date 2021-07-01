@@ -12,25 +12,24 @@ const state = {
 
 function fetchCheckpointEventsSend(event, knex) {
   knex('events')
+    .count('plate', { as: 'count' })
+    .then((data) => {
+      if (!data.length) return;
+      const length = data[0].count;
+      state.checkpointEventsNum = length;
+      state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+    });
+  knex('events')
     .orderBy('id', 'desc')
     .limit(state.rows)
     .then((data) => {
       if (!data.length) return;
-      const length = data[0].id;
-      state.checkpointEventsNum = length;
-      state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
       data = setDate(data);
       state.checkpointEventListForTable = data;
       event.sender.send('fetchCheckpointEventsRecieve', state.checkpointEventListForTable, state.checkpointEventsPagesNum, state.checkpointEventsNum);
     });
 }
 function fetchCheckpointEventsByPageNumSend(event, knex, page) {
-  function setData(data) {
-    if (!data.length) return;
-    data = setDate(data);
-    return data;
-  }
-
   state.page = page;
   const tableEvents = knex('events').orderBy('events.id', 'desc');
 
@@ -38,7 +37,8 @@ function fetchCheckpointEventsByPageNumSend(event, knex, page) {
     .limit(state.rows)
     .offset(state.page * state.rows)
     .then((data) => {
-      data = setData(data);
+      if (!data.length) return;
+      data = setDate(data);
       state.checkpointEventListForTable = data;
       event.sender.send('fetchCheckpointEventsByPageNumRecieve', state.checkpointEventListForTable);
     });

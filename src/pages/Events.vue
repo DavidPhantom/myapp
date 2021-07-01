@@ -53,6 +53,7 @@
       :data="events"
       :columns="columns"
       row-key="name"
+      hide-bottom
     >
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
@@ -123,11 +124,14 @@
         </q-td>
       </template>
     </q-table>
-    <q-pagination
-      v-model="current"
-      :max="pagesNum"
-      @input="handlePage"
-    />
+    <div class="q-pa-lg flex flex-center">
+      <q-pagination
+        v-model="current"
+        :max="pagesNum"
+        direction-links
+        @input="handlePage"
+      />
+    </div>
   </div>
 </template>
 
