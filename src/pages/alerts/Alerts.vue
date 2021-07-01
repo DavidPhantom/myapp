@@ -21,6 +21,14 @@
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-btn
+            color="positive"
+            icon-right="edit"
+            no-caps
+            flat
+            dense
+            @click="openEditor(props.row, alerts.indexOf(props.row))"
+          />
+          <q-btn
             color="negative"
             icon-right="delete"
             no-caps
@@ -56,6 +64,10 @@
 
       </q-card>
     </q-dialog>
+
+    <AlertsEditor
+      ref="alertsEditor"
+    />
   </div>
 </template>
 
@@ -68,8 +80,13 @@ import {
   REMOVE_ALERT,
 } from 'src/store/modules/alerts/actions';
 
+import AlertsEditor from './AlertsEditor.vue';
+
 export default {
   name: 'Alerts',
+  components: {
+    AlertsEditor,
+  },
   data() {
     return {
       addAlertModalWindowIsOpened: false,
@@ -128,8 +145,8 @@ export default {
       this.$store.dispatch(REMOVE_ALERT, rowIdx);
     },
 
-    handlePage(e) {
-      this.page = e;
+    openEditor(row, rowIdx) {
+      this.$refs.alertsEditor.open(row.address, rowIdx);
     },
   },
 };
