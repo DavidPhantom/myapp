@@ -4,8 +4,18 @@
       title="Alerts"
       :data="alerts"
       :columns="columns"
-      row-key="name"
+      row-key="id"
+      :filter="filter"
+      binary-state-sort
     >
+      <template v-slot:top-right>
+        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template>
+
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-btn
@@ -59,6 +69,7 @@ export default {
   },
   data() {
     return {
+      filter: '',
       current: 1,
       page: 0,
       totalNum: 0,
