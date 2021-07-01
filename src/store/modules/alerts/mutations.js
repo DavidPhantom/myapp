@@ -5,7 +5,6 @@ export const CHANGE_ALERT = 'CHANGE_ALERT';
 export const mutations = {
   [ADD_NEW_ALERT_MUTATION]: (state, address) => {
     state.alerts.push({
-      id: state.alerts.length,
       type: 'E-mail',
       address,
     });

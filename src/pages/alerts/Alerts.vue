@@ -11,6 +11,12 @@
       :filter-method="addressFilter"
       binary-state-sort
     >
+      <template v-slot:body-cell-id="props">
+        <q-td :props="props">
+          <span>{{props.rowIndex + 1}}</span>
+        </q-td>
+      </template>
+
       <template v-slot:top-right>
         <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
           <template v-slot:append>
