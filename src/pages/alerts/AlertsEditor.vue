@@ -31,6 +31,8 @@ import {
   EDIT_ALERT,
 } from 'src/store/modules/alerts/actions';
 
+import { isValidEmail } from 'src/utils/helper.js';
+
 export default {
   name: 'AlertsEditor',
   data() {
@@ -40,17 +42,12 @@ export default {
     };
   },
   methods: {
+    isValidEmail,
     open(email, rowIdx) {
       this.email = email;
       this.editedRowIdx = rowIdx;
       this.editAlertModalWindowIsOpened = true;
     },
-
-    isValidEmail() {
-      const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-      return this.email.match(emailPattern) || 'Invalid email';
-    },
-
     edit() {
       this.$store.dispatch(EDIT_ALERT, {
         idx: this.editedRowIdx,

@@ -32,6 +32,8 @@ import {
   ADD_NEW_ALERT_ACTION,
 } from 'src/store/modules/alerts/actions';
 
+import { isValidEmail } from 'src/utils/helper.js';
+
 export default {
   name: 'AlertsCreator',
   data() {
@@ -41,18 +43,13 @@ export default {
     };
   },
   methods: {
-    isValidEmail() {
-      const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-      return this.email.match(emailPattern) || 'Invalid email';
-    },
-
+    isValidEmail,
     plug() {
       this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
       this.email = '';
       this.addAlertModalWindowIsOpened = false;
       return true;
     },
-
     open() {
       this.addAlertModalWindowIsOpened = true;
     },

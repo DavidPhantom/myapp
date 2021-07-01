@@ -20,6 +20,13 @@ const routes = [
       { path: '', component: () => import('pages/alerts/Alerts.vue') },
     ],
   },
+  {
+    path: '/settings-general',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/settings/general/General.vue') },
+    ],
+  },
 
   {
     path: '*',

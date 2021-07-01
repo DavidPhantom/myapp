@@ -55,6 +55,11 @@ const linksList = [
     route: '/alerts',
     id: 2,
   },
+  {
+    title: 'General settings',
+    route: '/settings-general',
+    id: 3,
+  },
 ];
 
 export default {
