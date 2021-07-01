@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div>
     <q-btn label="Add alert" color="primary" @click="openCreator" />
 
     <q-table
@@ -8,6 +8,7 @@
       :columns="columns"
       row-key="id"
       :filter="filter"
+      :filter-method="addressFilter"
       binary-state-sort
     >
       <template v-slot:top-right>
@@ -106,6 +107,11 @@ export default {
     },
   },
   methods: {
+    addressFilter(rows, terms) {
+      const filteredRows = rows.filter((row) => row.address.startsWith(terms));
+      return filteredRows;
+    },
+
     removeRow(rowIdx) {
       this.$store.dispatch(REMOVE_ALERT, rowIdx);
     },
