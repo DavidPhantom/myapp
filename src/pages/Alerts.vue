@@ -32,7 +32,7 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="addAlertModalWindowIsOpened">
+    <q-dialog v-model="addAlertModalWindowIsOpened" v-on:keyup.enter="plug">
       <q-card>
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Add alert</div>
@@ -51,9 +51,6 @@
               v-model="email"
               @input="handleEmail"
             />
-            <div class="common-form__error-text">
-              <span v-if="emailIsIncorrect">{{ $t('enterCorrectEmail') }}</span>
-            </div>
           </form>
         </q-card-section>
 
@@ -125,10 +122,19 @@ export default {
     plug() {
       if (!this.email.match(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/)) {
         this.emailIsIncorrect = true;
+        this.$q.notify({
+          message: 'Enter correct email',
+          color: 'red',
+        });
         return false;
       }
       this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
       this.email = '';
+      this.addAlertModalWindowIsOpened = false;
+      this.$q.notify({
+        message: 'Email was added successfully',
+        color: 'green',
+      });
       return true;
     },
 
@@ -138,6 +144,9 @@ export default {
 
     removeRow(rowIdx) {
       this.$store.dispatch(REMOVE_ALERT, rowIdx);
+      this.$q.notify({
+        message: 'Email was deleted successfully',
+      });
     },
 
     handlePage(e) {

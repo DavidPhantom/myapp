@@ -6,7 +6,9 @@ import DatabaseService from '../app/Database/DatabaseService';
 import {
   fetchCheckpointEventsSend,
   fetchCheckpointEventsByPageNumSend,
-  fetchCheckpointEventsAddEvent,
+  fetchCheckpointEventsAddEventSend,
+  fetchCheckpointEventsRemoveEventSend,
+  fetchCheckpointEventsEditEventSend,
 } from '../app/modules/eventsDatabaseService';
 
 const { ipcMain } = require('electron');
@@ -89,6 +91,14 @@ ipcMain.on('fetchCheckpointEventsByPageNumSend', (event, page) => {
   fetchCheckpointEventsByPageNumSend(event, global.knex, page);
 });
 
-ipcMain.on('fetchCheckpointEventsAddEvent', (event, row) => {
-  fetchCheckpointEventsAddEvent(event, global.knex, row);
+ipcMain.on('fetchCheckpointEventsAddEventSend', (event, row) => {
+  fetchCheckpointEventsAddEventSend(event, global.knex, row);
+});
+
+ipcMain.on('fetchCheckpointEventsRemoveEventSend', (event, rowIdx) => {
+  fetchCheckpointEventsRemoveEventSend(event, global.knex, rowIdx);
+});
+
+ipcMain.on('fetchCheckpointEventsEditEventSend', (event, dataLocal) => {
+  fetchCheckpointEventsEditEventSend(event, global.knex, dataLocal.curRowIdx, dataLocal.curRow);
 });
