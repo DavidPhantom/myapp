@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-btn label="Add alert" color="primary" @click="addAlertModalWindowIsOpened = true" />
+    <q-btn label="Add alert" color="primary" @click="openCreator" />
 
     <q-table
       title="Alerts"
@@ -40,31 +40,9 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="addAlertModalWindowIsOpened">
-      <q-card>
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Add alert</div>
-          <q-space />
-          <q-btn addAlertModalWindowIsOpened="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section align="right">
-          <form
-            @submit.prevent.stop="plug"
-          >
-            <q-input
-              v-model="email"
-              filled type="email"
-              :rules="[val => !!val || 'Email is missing', isValidEmail]"
-            />
-
-            <q-btn label="OK" type="submit" color="primary" />
-          </form>
-        </q-card-section>
-
-      </q-card>
-    </q-dialog>
-
+    <AlertsCreator
+      ref="alertsCreator"
+    />
     <AlertsEditor
       ref="alertsEditor"
     />
@@ -76,22 +54,21 @@ import {
   ALERTS,
 } from 'src/store/modules/alerts/getters';
 import {
-  ADD_NEW_ALERT_ACTION,
   REMOVE_ALERT,
 } from 'src/store/modules/alerts/actions';
 
 import AlertsEditor from './AlertsEditor.vue';
+import AlertsCreator from './AlertsCreator.vue';
 
 export default {
   name: 'Alerts',
   components: {
     AlertsEditor,
+    AlertsCreator,
   },
   data() {
     return {
-      addAlertModalWindowIsOpened: false,
       filter: '',
-      email: '',
       columns: [
         {
           name: 'id',
@@ -129,24 +106,16 @@ export default {
     },
   },
   methods: {
-    isValidEmail() {
-      const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-      return this.email.match(emailPattern) || 'Invalid email';
-    },
-
-    plug() {
-      this.$store.dispatch(ADD_NEW_ALERT_ACTION, this.email);
-      this.email = '';
-      this.addAlertModalWindowIsOpened = false;
-      return true;
-    },
-
     removeRow(rowIdx) {
       this.$store.dispatch(REMOVE_ALERT, rowIdx);
     },
 
     openEditor(row, rowIdx) {
       this.$refs.alertsEditor.open(row.address, rowIdx);
+    },
+
+    openCreator() {
+      this.$refs.alertsCreator.open();
     },
   },
 };
