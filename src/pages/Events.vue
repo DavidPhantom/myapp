@@ -1,10 +1,10 @@
 <template>
   <div class="q-pa-md">
-    <q-btn label="Add row" color="primary" @click="addRowModalWindowIsOpened = true" />
+    <q-btn label="Add event" color="primary" @click="addRowModalWindowIsOpened = true" />
     <q-dialog v-model="addRowModalWindowIsOpened" v-on:keyup.enter="plugAdd">
       <q-card>
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Add row</div>
+          <div class="text-h6">Add event</div>
           <q-space />
           <q-btn addRowModalWindowIsOpened="close" flat round dense v-close-popup />
         </q-card-section>
@@ -50,7 +50,7 @@
     </q-dialog>
     <q-table
       title="Events"
-      :data="data"
+      :data="events"
       :columns="columns"
       row-key="name"
     >
@@ -67,7 +67,7 @@
           <q-dialog v-model="editRowModalWindowIsOpened" v-on:keyup.enter="plugEdit">
             <q-card>
               <q-card-section class="row items-center q-pb-none">
-                <div class="text-h6">Edit row</div>
+                <div class="text-h6">Edit event</div>
                 <q-space />
                 <q-btn editRowModalWindowIsOpened="close" flat round dense v-close-popup />
               </q-card-section>
@@ -177,13 +177,13 @@ export default {
           field: 'action',
         },
       ],
-      data: [],
+      events: [],
     };
   },
   async beforeMount() {
     window.send('fetchCheckpointEventsSend');
     window.recieve('fetchCheckpointEventsRecieve', (dataForTable, pagesNum) => {
-      this.data = dataForTable;
+      this.events = dataForTable;
       this.pagesNum = pagesNum;
     });
   },
@@ -311,7 +311,7 @@ export default {
     changeVisibleTableContent(page) {
       window.send('fetchCheckpointEventsByPageNumSend', page);
       window.recieve('fetchCheckpointEventsByPageNumRecieve', (dataForTable) => {
-        this.data = dataForTable;
+        this.events = dataForTable;
       });
     },
   },
