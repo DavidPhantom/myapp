@@ -83,7 +83,6 @@ export default {
           label: 'ID',
           align: 'left',
           field: 'id',
-          sortable: true,
         },
         {
           name: 'type',
