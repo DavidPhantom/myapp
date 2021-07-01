@@ -1,5 +1,7 @@
 <template>
   <div class="q-pa-md">
+    <q-btn label="Add alert" color="primary" @click="addAlertModalWindowIsOpened = true" />
+
     <q-table
       title="Alerts"
       :data="alerts"
@@ -29,31 +31,41 @@
         </q-td>
       </template>
     </q-table>
-    <q-pagination v-model="current" :max="totalNum" @input="handlePage" />
 
-    <ModalWindow
-      :accept="plug"
-    >
-      <form class="common-form" v-on:submit.prevent="">
-        <input
-          type="email"
-          :class="
-            emailIsIncorrect && 'common-form__error-input'
-          "
-          placeholder="email"
-          v-model="email"
-          @input="handleEmail"
-        />
-        <div class="common-form__error-text">
-          <span v-if="emailIsIncorrect">{{ $t('enterCorrectEmail') }}</span>
-        </div>
-      </form>
-    </ModalWindow>
+    <q-dialog v-model="addAlertModalWindowIsOpened">
+      <q-card>
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Add alert</div>
+          <q-space />
+          <q-btn addAlertModalWindowIsOpened="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <form class="common-form" v-on:submit.prevent="">
+            <input
+              type="email"
+              :class="
+                emailIsIncorrect && 'common-form__error-input'
+              "
+              placeholder="email"
+              v-model="email"
+              @input="handleEmail"
+            />
+            <div class="common-form__error-text">
+              <span v-if="emailIsIncorrect">{{ $t('enterCorrectEmail') }}</span>
+            </div>
+          </form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" @click="plug" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
-import ModalWindow from 'src/components/ModalWindow.vue';
 import {
   ALERTS,
 } from 'src/store/modules/alerts/getters';
@@ -64,11 +76,9 @@ import {
 
 export default {
   name: 'Alerts',
-  components: {
-    ModalWindow,
-  },
   data() {
     return {
+      addAlertModalWindowIsOpened: false,
       filter: '',
       current: 1,
       page: 0,
