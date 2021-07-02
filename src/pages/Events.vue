@@ -11,11 +11,11 @@
         <q-card-section>
           <form class="common-form" v-on:submit.prevent="">
             <input
-              type="plate"
+              type="text"
               :class="
                 plateIsIncorrect && 'common-form__error-input'
               "
-              placeholder="plate"
+              placeholder="Plate Number"
               v-model="plate"
               @input="handlePlate"
             />
@@ -32,11 +32,11 @@
               />
             </div>
             <input
-              type="camera"
+              type="text"
               :class="
                 cameraIsIncorrect && 'common-form__error-input'
               "
-              placeholder="camera"
+              placeholder="Camera Name"
               v-model="camera"
               @input="handleCamera"
             />
@@ -48,6 +48,17 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-card-section>
+        <input
+          type="text"
+          placeholder="Find Plate Number"
+          v-model="plateSearch"
+          @input="handleCarNumber"
+        />
+      <div class="q-pa-md">
+        <q-date v-model="calendarDate" range @input="handleCalendarDate"/>
+      </div>
+    </q-card-section>
     <q-table
       title="Events"
       :data="events"
@@ -57,7 +68,7 @@
     >
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
-          <q-btn
+          <!--<q-btn
             color="blue"
             icon-right="edit"
             no-caps
@@ -76,11 +87,11 @@
               <q-card-section>
                 <form class="common-form" v-on:submit.prevent="">
                   <input
-                    type="plate"
+                    type="text"
                     :class="
                 plateIsIncorrect && 'common-form__error-input'
               "
-                    placeholder="plate"
+                    placeholder="Plate Number"
                     v-model="plate"
                     @input="handlePlate"
                   />
@@ -97,11 +108,11 @@
                     />
                   </div>
                   <input
-                    type="camera"
+                    type="text"
                     :class="
                 cameraIsIncorrect && 'common-form__error-input'
               "
-                    placeholder="camera"
+                    placeholder="Camera Name"
                     v-model="camera"
                     @input="handleCamera"
                   />
@@ -112,7 +123,7 @@
                 <q-btn flat label="OK" color="primary" @click="editEvent" />
               </q-card-actions>
             </q-card>
-          </q-dialog>
+          </q-dialog>-->
           <q-btn
             color="negative"
             icon-right="delete"
@@ -143,17 +154,19 @@ import {
   FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
   FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
   FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  FETCH_CHECKPOINT_EVENTS_FILTER,
+  SET_FILTER_PLATE, SET_FILTER_DATE,
   convertToUnixTimestamp, getTodayUnixTimestamp,
   generateYearMonthAndDateFromJSTimestamp,
   generateHoursMinutesAndSecondsFromJSTimestamp,
-  notifyGeneral,
+  notifyGeneral, convertToTimestamp,
 } from '../../src-electron/app/utils/helper';
 
 export const messageEventAddSuccess = 'Event was added successfully';
 export const messageEventEditSuccess = 'Event was edited successfully';
 export const messageEventRemoveSuccess = 'Event was removed successfully';
-export const messagePlateError = 'Enter plate';
-export const messageCameraError = 'Enter camera';
+export const messagePlateError = 'Enter plate number';
+export const messageCameraError = 'Enter camera name';
 
 export default {
   name: 'Events',
@@ -170,6 +183,8 @@ export default {
       camera: '',
       date: '',
       time: '',
+      plateSearch: '',
+      calendarDate: { from: '', to: '' },
       plateIsIncorrect: false,
       cameraIsIncorrect: false,
       columns: [
@@ -192,7 +207,7 @@ export default {
         },
         {
           name: 'action',
-          label: 'Edit/Remove',
+          label: 'Remove',
           align: 'center',
           field: 'action',
         },
@@ -250,6 +265,30 @@ export default {
 
     handleCamera() {
       this.cameraIsIncorrect = false;
+    },
+
+    async handleCarNumber(e) {
+      await window.invoke(SET_FILTER_PLATE, e.target.value);
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
+      await this.setPagesNumAndCountEvents(data);
+      await this.changeVisibleTableContent(this.page - 1);
+    },
+
+    async handleCalendarDate() {
+      let date;
+      if (this.calendarDate) {
+        const dateFrom = this.calendarDate.from;
+        const dateTo = this.calendarDate.to;
+        const dateFromInt = convertToTimestamp(dateFrom);
+        const dateToInt = convertToTimestamp(dateTo) + 24 * 60 * 60;
+        date = { dateFrom: dateFromInt, dateTo: dateToInt };
+      } else {
+        date = null;
+      }
+      await window.invoke(SET_FILTER_DATE, date);
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
+      await this.setPagesNumAndCountEvents(data);
+      await this.changeVisibleTableContent(this.page - 1);
     },
 
     editRow(row) {

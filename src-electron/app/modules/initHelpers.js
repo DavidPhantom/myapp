@@ -4,6 +4,9 @@ import {
   FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
   FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
   FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  FETCH_CHECKPOINT_EVENTS_FILTER,
+  SET_FILTER_PLATE,
+  SET_FILTER_DATE,
 } from '../utils/helper';
 
 import {
@@ -12,11 +15,24 @@ import {
   fetchCheckpointEventsAddEvent,
   fetchCheckpointEventsRemoveEvent,
   fetchCheckpointEventsEditEvent,
+  fetchCheckpointEventsFilter,
+  setFilterPlate,
+  setFilterDate,
 } from './eventsDatabaseService';
 
 const { ipcMain } = require('electron');
 
 function initHandlers() {
+  ipcMain.handle(SET_FILTER_PLATE,
+    async (event, plate) => {
+      await setFilterPlate(event, global.knex, plate);
+    });
+
+  ipcMain.handle(SET_FILTER_DATE,
+    async (event, date) => {
+      await setFilterDate(event, global.knex, date);
+    });
+
   ipcMain.handle(FETCH_CHECKPOINT_EVENTS,
     async (event) => fetchCheckpointEvents(event, global.knex));
 
@@ -34,6 +50,9 @@ function initHandlers() {
       await fetchCheckpointEventsEditEvent(event, global.knex,
         dataLocal.curRowIdx, dataLocal.curRow);
     });
+
+  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_FILTER,
+    async (event) => fetchCheckpointEventsFilter(event, global.knex));
 }
 
 export {

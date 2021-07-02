@@ -3,11 +3,15 @@ const FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM = 'fetchCheckpointEventsByPageNum';
 const FETCH_CHECKPOINT_EVENTS_ADD_EVENT = 'fetchCheckpointEventsAddEvent';
 const FETCH_CHECKPOINT_EVENTS_EDIT_EVENT = 'fetchCheckpointEventsEditEvent';
 const FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT = 'fetchCheckpointEventsRemoveEvent';
+const FETCH_CHECKPOINT_EVENTS_FILTER = 'fetchCheckpointEventsFilter';
+const SET_FILTER_PLATE = 'setFilterPlate';
+const SET_FILTER_DATE = 'setFilterDate';
 
 export {
   FETCH_CHECKPOINT_EVENTS, FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
   FETCH_CHECKPOINT_EVENTS_ADD_EVENT, FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, FETCH_CHECKPOINT_EVENTS_FILTER,
+  SET_FILTER_PLATE, SET_FILTER_DATE,
 };
 
 export function pad(n) {
@@ -50,6 +54,11 @@ export function convertToUnixTimestamp(jsTimestamp) {
 
 export function convertToJsTimestamp(unixTimestamp) {
   return unixTimestamp * 1000;
+}
+
+export function convertToTimestamp(dateYearMonthAndDate) {
+  const date = Math.round(new Date(dateYearMonthAndDate).getTime() / 1000);
+  return date;
 }
 
 export function setDate(data) {

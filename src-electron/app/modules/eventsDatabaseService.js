@@ -8,7 +8,17 @@ const state = {
   page: 0,
   checkpointEventsNum: 0,
   checkpointEventsPagesNum: 0,
+  plateFilterVal: null,
+  dateFilterVal: null,
 };
+
+async function setFilterPlate(event, knex, plate) {
+  state.plateFilterVal = plate;
+}
+
+async function setFilterDate(event, knex, date) {
+  state.dateFilterVal = date;
+}
 
 async function fetchCheckpointEvents(event, knex) {
   await knex('events')
@@ -23,7 +33,10 @@ async function fetchCheckpointEvents(event, knex) {
     .orderBy('id', 'desc')
     .limit(state.rows)
     .then((data) => {
-      if (!data.length) return;
+      if (!data.length) {
+        state.checkpointEventListForTable = [];
+        return;
+      }
       data = setDate(data);
       state.checkpointEventListForTable = data;
     });
@@ -38,15 +51,33 @@ async function fetchCheckpointEvents(event, knex) {
 async function fetchCheckpointEventsByPageNum(event, knex, page) {
   state.page = page;
 
-  await knex('events')
-    .orderBy('events.id', 'desc')
+  let mask; let dateFrom; let
+    dateTo;
+
+  let tableEvents = knex('events').orderBy('events.id', 'desc');
+
+  if (state.plateFilterVal) {
+    mask = state.plateFilterVal.replace(/\*/g, '%');
+    tableEvents = tableEvents.where('events.plate', 'like', `%${mask}%`);
+  }
+  if (state.dateFilterVal) {
+    dateFrom = state.dateFilterVal.dateFrom;
+    dateTo = state.dateFilterVal.dateTo;
+    tableEvents = tableEvents.whereBetween('events.date', [dateFrom, dateTo]);
+  }
+
+  await tableEvents
     .limit(state.rows)
     .offset(state.page * state.rows)
     .then((data) => {
-      if (!data.length) return;
+      if (!data.length) {
+        state.checkpointEventListForTable = [];
+        return;
+      }
       data = setDate(data);
       state.checkpointEventListForTable = data;
     });
+
   const result = {
     checkpointEventListForTable: state.checkpointEventListForTable,
   };
@@ -80,8 +111,40 @@ async function fetchCheckpointEventsEditEvent(event, knex, rowIdx, row) {
     .update(row);
 }
 
+async function fetchCheckpointEventsFilter(event, knex) {
+  let mask; let dateFrom; let
+    dateTo;
+
+  let tableEventsCount = knex('events').count('events.id', { as: 'count' });
+
+  if (state.plateFilterVal) {
+    mask = state.plateFilterVal.replace(/\*/g, '%');
+    tableEventsCount = tableEventsCount.where('events.plate', 'like', `%${mask}%`);
+  }
+  if (state.dateFilterVal) {
+    dateFrom = state.dateFilterVal.dateFrom;
+    dateTo = state.dateFilterVal.dateTo;
+    tableEventsCount = tableEventsCount.whereBetween('events.date', [dateFrom, dateTo]);
+  }
+
+  await tableEventsCount
+    .then((data) => {
+      if (!data.length) return;
+      const length = data[0].count;
+      state.checkpointEventsNum = length;
+      state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+    });
+
+  const result = {
+    checkpointEventsPagesNum: state.checkpointEventsPagesNum,
+    checkpointEventsNum: state.checkpointEventsNum,
+  };
+  return result;
+}
+
 export {
   fetchCheckpointEvents, fetchCheckpointEventsByPageNum,
   fetchCheckpointEventsAddEvent, fetchCheckpointEventsRemoveEvent,
-  fetchCheckpointEventsEditEvent,
+  fetchCheckpointEventsEditEvent, fetchCheckpointEventsFilter,
+  setFilterPlate, setFilterDate,
 };
