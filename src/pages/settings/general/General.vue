@@ -1,6 +1,6 @@
 <template>
   <div class="q-pl-md q-pt-md">
-    <q-btn-dropdown color="primary" label="Language" class="q-mb-md">
+    <q-btn-dropdown color="primary" :label="$t('language')" class="q-mb-md">
       <q-list>
         <q-item clickable v-close-popup @click="changeLanguage">
           <q-item-section>

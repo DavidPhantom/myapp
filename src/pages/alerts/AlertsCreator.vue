@@ -2,7 +2,7 @@
   <q-dialog v-model="addAlertModalWindowIsOpened">
     <q-card>
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">Add alert</div>
+        <div class="text-h6">{{$t('connect')}} email</div>
         <q-space />
         <q-btn addAlertModalWindowIsOpened="close" flat round dense v-close-popup />
       </q-card-section>

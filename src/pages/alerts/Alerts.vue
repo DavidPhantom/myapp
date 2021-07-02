@@ -1,9 +1,9 @@
 <template>
   <div class="q-pl-md q-pt-md">
-    <q-btn label="Add alert" color="primary" @click="openCreator" />
+    <q-btn :label="`${$t('connect')} email`" color="primary" @click="openCreator" />
 
     <q-table
-      title="Alerts"
+      :title="$t('alerts')"
       :data="alerts"
       :columns="columns"
       row-key="id"
@@ -88,14 +88,14 @@ export default {
         {
           name: 'type',
           align: 'center',
-          label: 'Notification type',
+          label: this.$t('notificationType'),
           field: 'type',
           sortable: true,
         },
         {
           name: 'address',
           align: 'center',
-          label: 'Notification address',
+          label: this.$t('notificationAddress'),
           field: 'address',
           sortable: true,
         },

@@ -25,7 +25,7 @@
               :data-route="link.route"
               @click="goTo"
             >
-              {{ link.title }}
+              {{ $t(link.tkey) }}
             </button>
           </div>
         </q-scroll-area>
@@ -41,27 +41,27 @@
 <script>
 const linksList = [
   {
-    title: 'Home',
+    tkey: 'main',
     route: '/',
     id: 0,
   },
   {
-    title: 'Events',
+    tkey: 'events',
     route: '/events',
     id: 1,
   },
   {
-    title: 'Alerts',
+    tkey: 'alerts',
     route: '/alerts',
     id: 2,
   },
   {
-    title: 'General settings',
+    tkey: 'general',
     route: '/settings-general',
     id: 3,
   },
   {
-    title: 'Cameras settings',
+    tkey: 'cameras',
     route: '/settings-cameras',
     id: 4,
   },
