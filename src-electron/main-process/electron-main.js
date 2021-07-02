@@ -2,24 +2,9 @@ import { app, BrowserWindow, nativeTheme } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import DatabaseService from '../app/Database/DatabaseService';
-
 import {
-  FETCH_CHECKPOINT_EVENTS,
-  FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
-  FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
-  FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
-} from '../app/utils/helper';
-
-import {
-  fetchCheckpointEvents,
-  fetchCheckpointEventsByPageNum,
-  fetchCheckpointEventsAddEvent,
-  fetchCheckpointEventsRemoveEvent,
-  fetchCheckpointEventsEditEvent,
-} from '../app/modules/eventsDatabaseService';
-
-const { ipcMain } = require('electron');
+  initHandlers,
+} from '../app/modules/initHelpers';
 
 const createAppDir = () => {
   const appDataDir = path.join(process.env.LOCALAPPDATA || process.env.HOME, 'MyApp');
@@ -75,6 +60,7 @@ app.on('ready', async () => {
   await global.databaseService.initDatabase();
   const { knex } = global.databaseService;
   global.knex = knex;
+  initHandlers();
   createWindow();
 });
 
@@ -89,28 +75,4 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
-});
-
-ipcMain.handle(FETCH_CHECKPOINT_EVENTS, async (event) => {
-  const result = await fetchCheckpointEvents(event, global.knex);
-  return result;
-});
-
-ipcMain.handle(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, async (event, page) => {
-  const result = await fetchCheckpointEventsByPageNum(event, global.knex, page);
-  return result;
-});
-
-ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, async (event, row) => {
-  const result = await fetchCheckpointEventsAddEvent(event, global.knex, row);
-  return result;
-});
-
-ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, async (event, rowIdx) => {
-  const result = await fetchCheckpointEventsRemoveEvent(event, global.knex, rowIdx);
-  return result;
-});
-
-ipcMain.handle(FETCH_CHECKPOINT_EVENTS_EDIT_EVENT, async (event, dataLocal) => {
-  await fetchCheckpointEventsEditEvent(event, global.knex, dataLocal.curRowIdx, dataLocal.curRow);
 });

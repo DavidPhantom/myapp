@@ -58,3 +58,10 @@ export function setDate(data) {
   });
   return data;
 }
+
+export function notifyGeneral(message, color, q) {
+  q.notify({
+    message: `${message}`,
+    color: `${color}`,
+  });
+}

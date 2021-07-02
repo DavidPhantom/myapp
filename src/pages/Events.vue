@@ -146,6 +146,7 @@ import {
   convertToUnixTimestamp, getTodayUnixTimestamp,
   generateYearMonthAndDateFromJSTimestamp,
   generateHoursMinutesAndSecondsFromJSTimestamp,
+  notifyGeneral,
 } from '../../src-electron/app/utils/helper';
 
 export const messageEventAddSuccess = 'Event was added successfully';
@@ -277,12 +278,12 @@ export default {
       if (!this.plate) {
         this.plateIsIncorrect = true;
         this.notifyPlateError();
-        return false;
+        return null;
       }
       if (!this.camera) {
         this.cameraIsIncorrect = true;
         this.notifyCameraError();
-        return false;
+        return null;
       }
       if (!this.date || !this.time) {
         dateForRow = getTodayUnixTimestamp();
@@ -306,30 +307,23 @@ export default {
     },
 
     async notifyEventAddSuccess() {
-      await this.notifyGeneral(messageEventAddSuccess, 'green');
+      await notifyGeneral(messageEventAddSuccess, 'green', this.$q);
     },
 
     async notifyEventEditSuccess() {
-      await this.notifyGeneral(messageEventEditSuccess, 'blue');
+      await notifyGeneral(messageEventEditSuccess, 'blue', this.$q);
     },
 
     async notifyEventRemoveSuccess() {
-      await this.notifyGeneral(messageEventRemoveSuccess, 'grey');
+      await notifyGeneral(messageEventRemoveSuccess, 'grey', this.$q);
     },
 
     async notifyPlateError() {
-      await this.notifyGeneral(messagePlateError, 'red');
+      await notifyGeneral(messagePlateError, 'red', this.$q);
     },
 
     async notifyCameraError() {
-      await this.notifyGeneral(messageCameraError, 'red');
-    },
-
-    notifyGeneral(message, color) {
-      this.$q.notify({
-        message: `${message}`,
-        color: `${color}`,
-      });
+      await notifyGeneral(messageCameraError, 'red', this.$q);
     },
   },
 };
