@@ -27,6 +27,13 @@ const routes = [
       { path: '', component: () => import('pages/settings/general/General.vue') },
     ],
   },
+  {
+    path: '/settings-cameras',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/settings/cameras/Cameras.vue') },
+    ],
+  },
 
   {
     path: '*',

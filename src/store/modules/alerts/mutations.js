@@ -9,9 +9,9 @@ export const mutations = {
       address,
     });
   },
-  [UNSET_ALERT]: (state, alertIdx) => {
+  [UNSET_ALERT]: (state, address) => {
     state.alerts = [
-      ...state.alerts.filter((row, idx) => idx !== alertIdx),
+      ...state.alerts.filter((row) => row.address !== address),
     ];
   },
   [CHANGE_ALERT]: (state, data) => {

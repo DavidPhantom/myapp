@@ -13,8 +13,8 @@ export const actions = {
     context.commit(ADD_NEW_ALERT_MUTATION, address);
   },
 
-  [REMOVE_ALERT]: (context, alertIdx) => {
-    context.commit(UNSET_ALERT, alertIdx);
+  [REMOVE_ALERT]: (context, address) => {
+    context.commit(UNSET_ALERT, address);
   },
 
   [EDIT_ALERT]: (context, data) => {

@@ -42,7 +42,7 @@
             no-caps
             flat
             dense
-            @click="removeRow(alerts.indexOf(props.row))"
+            @click="removeRow(props.row)"
           />
         </q-td>
       </template>
@@ -118,8 +118,8 @@ export default {
       return filteredRows;
     },
 
-    removeRow(rowIdx) {
-      this.$store.dispatch(REMOVE_ALERT, rowIdx);
+    removeRow(row) {
+      this.$store.dispatch(REMOVE_ALERT, row.address);
     },
 
     openEditor(row, rowIdx) {

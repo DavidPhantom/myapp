@@ -16,6 +16,7 @@
             v-model="email"
             filled
             type="email"
+            placeholder="email"
             :rules="[val => !!val || 'Email is missing', isValidEmail]"
           />
 

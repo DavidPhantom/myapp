@@ -60,6 +60,11 @@ const linksList = [
     route: '/settings-general',
     id: 3,
   },
+  {
+    title: 'Cameras settings',
+    route: '/settings-cameras',
+    id: 4,
+  },
 ];
 
 export default {
