@@ -268,10 +268,7 @@ export default {
     },
 
     async handleCarNumber(e) {
-      await window.invoke(SET_FILTER_PLATE, e.target.value);
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
-      await this.setPagesNumAndCountEvents(data);
-      await this.changeVisibleTableContent(this.page - 1);
+      await this.setFilterAndFilterData(SET_FILTER_PLATE, e.target.value);
     },
 
     async handleCalendarDate() {
@@ -285,10 +282,7 @@ export default {
       } else {
         date = null;
       }
-      await window.invoke(SET_FILTER_DATE, date);
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
-      await this.setPagesNumAndCountEvents(data);
-      await this.changeVisibleTableContent(this.page - 1);
+      await this.setFilterAndFilterData(SET_FILTER_DATE, date);
     },
 
     editRow(row) {
@@ -305,6 +299,13 @@ export default {
       await this.setPagesNumAndCountEvents(data);
       await this.changeVisibleTableContent(this.page - 1);
       await this.notifyEventRemoveSuccess();
+    },
+
+    async setFilterAndFilterData(filter, filterData) {
+      await window.invoke(filter, filterData);
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
+      await this.setPagesNumAndCountEvents(data);
+      await this.changeVisibleTableContent(this.page - 1);
     },
 
     async changeVisibleTableContent(page) {
