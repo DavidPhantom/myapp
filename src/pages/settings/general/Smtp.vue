@@ -97,7 +97,7 @@ export default {
     save() {
       this.$q.notify({
         message: this.$t('savedSuccessfully'),
-        color: 'blue',
+        color: 'primary',
       });
     },
   },
