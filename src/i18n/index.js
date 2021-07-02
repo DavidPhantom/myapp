@@ -1,4 +1,4 @@
-import en from './en-us';
+import en from './en';
 import ru from './ru';
 
 export default {
