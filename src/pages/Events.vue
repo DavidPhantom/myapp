@@ -148,6 +148,12 @@ import {
   generateHoursMinutesAndSecondsFromJSTimestamp,
 } from '../../src-electron/app/utils/helper';
 
+export const messageEventAddSuccess = 'Event was added successfully';
+export const messageEventEditSuccess = 'Event was edited successfully';
+export const messageEventRemoveSuccess = 'Event was removed successfully';
+export const messagePlateError = 'Enter plate';
+export const messageCameraError = 'Enter camera';
+
 export default {
   name: 'Events',
   data() {
@@ -196,90 +202,40 @@ export default {
   async beforeMount() {
     const data = await window.invoke(FETCH_CHECKPOINT_EVENTS);
     this.events = data.checkpointEventListForTable;
-    this.pagesNum = data.checkpointEventsPagesNum;
-    this.countEvents = data.checkpointEventsNum;
+    await this.setPagesNumAndCountEvents(data);
   },
 
   methods: {
     async addEvent() {
-      let dateCur;
-      if (!this.plate) {
-        this.plateIsIncorrect = true;
-        this.$q.notify({
-          message: 'Enter plate',
-          color: 'red',
-        });
-        return false;
+      const dateForRow = await this.checkPlateCameraAndDate();
+      if (dateForRow) {
+        const row = { plate: this.plate, date: dateForRow, camera: this.camera };
+        const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, row);
+        await this.setPagesNumAndCountEvents(data);
+        await this.changeVisibleTableContent(this.page - 1);
+        await this.resetData();
+        this.addRowModalWindowIsOpened = false;
+        await this.notifyEventAddSuccess();
+        return true;
       }
-      if (!this.camera) {
-        this.cameraIsIncorrect = true;
-        this.$q.notify({
-          message: 'Enter camera',
-          color: 'red',
-        });
-        return false;
-      }
-      if (!this.date || !this.time) {
-        dateCur = getTodayUnixTimestamp();
-      } else {
-        dateCur = new Date(`${this.date} ${this.time}`).getTime();
-        dateCur = convertToUnixTimestamp(dateCur);
-      }
-      const row = { plate: this.plate, date: dateCur, camera: this.camera };
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, row);
-      this.pagesNum = data.checkpointEventsPagesNum;
-      this.countEvents = data.checkpointEventsNum;
-      await this.changeVisibleTableContent(this.page - 1);
-      this.plate = '';
-      this.camera = '';
-      this.date = '';
-      this.time = '';
-      this.addRowModalWindowIsOpened = false;
-      this.$q.notify({
-        message: 'Event was added successfully',
-        color: 'green',
-      });
-      return true;
+
+      return false;
     },
 
     async editEvent() {
-      let dateCur;
-      if (!this.plate) {
-        this.plateIsIncorrect = true;
-        this.$q.notify({
-          message: 'Enter plate',
-          color: 'red',
-        });
-        return false;
+      const dateForRow = await this.checkPlateCameraAndDate();
+      if (dateForRow) {
+        const row = { plate: this.plate, date: dateForRow, camera: this.camera };
+        const dataLocal = { curRowIdx: this.rowIdx, curRow: row };
+        await window.invoke(FETCH_CHECKPOINT_EVENTS_EDIT_EVENT, dataLocal);
+        await this.changeVisibleTableContent(this.page - 1);
+        await this.resetData();
+        this.editRowModalWindowIsOpened = false;
+        await this.notifyEventEditSuccess();
+        return true;
       }
-      if (!this.camera) {
-        this.cameraIsIncorrect = true;
-        this.$q.notify({
-          message: 'Enter camera',
-          color: 'red',
-        });
-        return false;
-      }
-      if (!this.date || !this.time) {
-        dateCur = getTodayUnixTimestamp();
-      } else {
-        dateCur = new Date(`${this.date} ${this.time}`).getTime();
-        dateCur = convertToUnixTimestamp(dateCur);
-      }
-      const row = { plate: this.plate, date: dateCur, camera: this.camera };
-      const dataLocal = { curRowIdx: this.rowIdx, curRow: row };
-      await window.invoke(FETCH_CHECKPOINT_EVENTS_EDIT_EVENT, dataLocal);
-      await this.changeVisibleTableContent(this.page - 1);
-      this.plate = '';
-      this.camera = '';
-      this.date = '';
-      this.time = '';
-      this.editRowModalWindowIsOpened = false;
-      this.$q.notify({
-        message: 'Event was edited successfully',
-        color: 'blue',
-      });
-      return true;
+
+      return false;
     },
 
     handlePage(e) {
@@ -298,25 +254,82 @@ export default {
     editRow(row) {
       this.rowIdx = row.id;
       this.plate = row.plate;
-      const tempDate = new Date(`${row.date}`);
-      this.date = generateYearMonthAndDateFromJSTimestamp(tempDate);
-      this.time = generateHoursMinutesAndSecondsFromJSTimestamp(tempDate);
+      const dateForRow = new Date(`${row.date}`);
+      this.date = generateYearMonthAndDateFromJSTimestamp(dateForRow);
+      this.time = generateHoursMinutesAndSecondsFromJSTimestamp(dateForRow);
       this.camera = row.camera;
     },
 
     async removeRow(rowIdx) {
       const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, rowIdx);
-      this.pagesNum = data.checkpointEventsPagesNum;
-      this.countEvents = data.checkpointEventsNum;
+      await this.setPagesNumAndCountEvents(data);
       await this.changeVisibleTableContent(this.page - 1);
-      this.$q.notify({
-        message: 'Event was deleted successfully',
-      });
+      await this.notifyEventRemoveSuccess();
     },
 
     async changeVisibleTableContent(page) {
       const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, page);
       this.events = data.checkpointEventListForTable;
+    },
+
+    checkPlateCameraAndDate() {
+      let dateForRow;
+      if (!this.plate) {
+        this.plateIsIncorrect = true;
+        this.notifyPlateError();
+        return false;
+      }
+      if (!this.camera) {
+        this.cameraIsIncorrect = true;
+        this.notifyCameraError();
+        return false;
+      }
+      if (!this.date || !this.time) {
+        dateForRow = getTodayUnixTimestamp();
+      } else {
+        dateForRow = new Date(`${this.date} ${this.time}`).getTime();
+        dateForRow = convertToUnixTimestamp(dateForRow);
+      }
+      return dateForRow;
+    },
+
+    resetData() {
+      this.plate = '';
+      this.camera = '';
+      this.date = '';
+      this.time = '';
+    },
+
+    setPagesNumAndCountEvents(data) {
+      this.pagesNum = data.checkpointEventsPagesNum;
+      this.countEvents = data.checkpointEventsNum;
+    },
+
+    async notifyEventAddSuccess() {
+      await this.notifyGeneral(messageEventAddSuccess, 'green');
+    },
+
+    async notifyEventEditSuccess() {
+      await this.notifyGeneral(messageEventEditSuccess, 'blue');
+    },
+
+    async notifyEventRemoveSuccess() {
+      await this.notifyGeneral(messageEventRemoveSuccess, 'grey');
+    },
+
+    async notifyPlateError() {
+      await this.notifyGeneral(messagePlateError, 'red');
+    },
+
+    async notifyCameraError() {
+      await this.notifyGeneral(messageCameraError, 'red');
+    },
+
+    notifyGeneral(message, color) {
+      this.$q.notify({
+        message: `${message}`,
+        color: `${color}`,
+      });
     },
   },
 };

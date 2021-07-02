@@ -102,12 +102,12 @@ ipcMain.handle(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, async (event, page) => {
 });
 
 ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, async (event, row) => {
-  const result = fetchCheckpointEventsAddEvent(event, global.knex, row);
+  const result = await fetchCheckpointEventsAddEvent(event, global.knex, row);
   return result;
 });
 
 ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, async (event, rowIdx) => {
-  const result = fetchCheckpointEventsRemoveEvent(event, global.knex, rowIdx);
+  const result = await fetchCheckpointEventsRemoveEvent(event, global.knex, rowIdx);
   return result;
 });
 
