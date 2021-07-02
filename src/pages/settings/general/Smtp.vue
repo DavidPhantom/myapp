@@ -9,6 +9,7 @@
         v-model="smtp.port"
         filled
         class="col-8"
+        :rules="[val => !!val || 'Port is missing']"
       />
       <span
         class="col-4 q-pl-lg row items-center"
@@ -22,6 +23,7 @@
         v-model="smtp.host"
         filled
         class="col-8"
+        :rules="[val => !!val || 'Host is missing']"
       />
       <span
         class="col-4 q-pl-lg row items-center"
@@ -35,6 +37,7 @@
         v-model="smtp.login"
         filled
         class="col-8"
+        :rules="[val => !!val || 'Login is missing']"
       />
       <span
         class="col-4 q-pl-lg row items-center"
@@ -64,6 +67,7 @@
         filled
         class="col-8"
         type="password"
+        :rules="[val => !!val || 'Password is missing']"
       />
       <span
         class="col-4 row q-pl-lg items-center"
