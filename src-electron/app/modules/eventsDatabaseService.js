@@ -21,24 +21,31 @@ async function setFilterDate(event, knex, date) {
 }
 
 async function fetchCheckpointEvents(event, knex) {
+  function setCount(data) {
+    if (!data.length) return;
+    const length = data[0].count;
+    state.checkpointEventsNum = length;
+    state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+  }
+  function setData(data) {
+    if (!data.length) {
+      state.checkpointEventListForTable = [];
+      return;
+    }
+    data = setDate(data);
+    state.checkpointEventListForTable = data;
+  }
+
   await knex('events')
     .count('plate', { as: 'count' })
     .then((data) => {
-      if (!data.length) return;
-      const length = data[0].count;
-      state.checkpointEventsNum = length;
-      state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+      setCount(data);
     });
   await knex('events')
     .orderBy('id', 'desc')
     .limit(state.rows)
     .then((data) => {
-      if (!data.length) {
-        state.checkpointEventListForTable = [];
-        return;
-      }
-      data = setDate(data);
-      state.checkpointEventListForTable = data;
+      setData(data);
     });
   const result = {
     checkpointEventListForTable: state.checkpointEventListForTable,
@@ -49,6 +56,14 @@ async function fetchCheckpointEvents(event, knex) {
 }
 
 async function fetchCheckpointEventsByPageNum(event, knex, page) {
+  function setData(data) {
+    if (!data.length) {
+      state.checkpointEventListForTable = [];
+      return;
+    }
+    data = setDate(data);
+    state.checkpointEventListForTable = data;
+  }
   state.page = page;
 
   let mask; let dateFrom; let
@@ -70,12 +85,7 @@ async function fetchCheckpointEventsByPageNum(event, knex, page) {
     .limit(state.rows)
     .offset(state.page * state.rows)
     .then((data) => {
-      if (!data.length) {
-        state.checkpointEventListForTable = [];
-        return;
-      }
-      data = setDate(data);
-      state.checkpointEventListForTable = data;
+      setData(data);
     });
 
   const result = {
@@ -112,6 +122,13 @@ async function fetchCheckpointEventsEditEvent(event, knex, rowIdx, row) {
 }
 
 async function fetchCheckpointEventsFilter(event, knex) {
+  function setCount(data) {
+    if (!data.length) return;
+    const length = data[0].count;
+    state.checkpointEventsNum = length;
+    state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+  }
+
   let mask; let dateFrom; let
     dateTo;
 
@@ -129,10 +146,7 @@ async function fetchCheckpointEventsFilter(event, knex) {
 
   await tableEventsCount
     .then((data) => {
-      if (!data.length) return;
-      const length = data[0].count;
-      state.checkpointEventsNum = length;
-      state.checkpointEventsPagesNum = Math.ceil(length / state.rows);
+      setCount(data);
     });
 
   const result = {
