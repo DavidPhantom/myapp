@@ -1,6 +1,5 @@
 export const SMTP = 'example/getSmtp';
 
-
 export const getters = {
-    [SMTP]: (state) => state.smtp,
+  [SMTP]: (state) => state.smtp,
 };

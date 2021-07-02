@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import alerts from './modules/alerts/store';
+import smtp from './modules/smtp/store';
 
 Vue.use(Vuex);
 
@@ -18,6 +19,7 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       alerts,
+      smtp,
     },
 
     // enable strict mode (adds overhead!)

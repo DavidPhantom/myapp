@@ -78,19 +78,14 @@
 
 <script>
 import { isValidEmail } from 'src/utils/helper.js';
+import { SMTP } from 'src/store/modules/smtp/getters';
 
 export default {
   name: 'Smtp',
-  data() {
-    return {
-      smtp: {
-        port: '',
-        host: '',
-        login: '',
-        email_from: '',
-        password: '',
-      },
-    };
+  computed: {
+    smtp() {
+      return this.$store.getters[SMTP];
+    },
   },
   methods: {
     isValidEmail,

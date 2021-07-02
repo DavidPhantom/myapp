@@ -3,22 +3,22 @@ import { mutations } from './mutations';
 import { actions } from './actions';
 
 export const getInitialState = () => ({
-    smtp: {
-        login: '',
-        password: '',
-        port: '',
-        email_from: '',
-        host: '',
-    },
+  smtp: {
+    login: 'test',
+    password: 'test',
+    port: 'test',
+    email_from: 'test',
+    host: 'test',
+  },
 });
 
 const state = {
-    ...getInitialState(),
+  ...getInitialState(),
 };
 
 export default {
-    state,
-    getters,
-    mutations,
-    actions,
+  state,
+  getters,
+  mutations,
+  actions,
 };
