@@ -1,18 +1,6 @@
 const { ipcRenderer } = require('electron');
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
-window.send = function (channel, data) {
-  // whitelist channels
-  // let validChannels = ["toMain"];
-  // if (validChannels.includes(channel)) {
-  ipcRenderer.send(channel, data);
-  // }
-};
 
-window.recieve = function (channel, func) {
-  // let validChannels = ["fromMain"];
-  // if (validChannels.includes(channel)) {
-  // Deliberately strip event as it includes `sender`
-  ipcRenderer.on(channel, (event, ...args) => func(...args));
-  // }
+window.invoke = async function (channel, data) {
+  const result = await ipcRenderer.invoke(channel, data);
+  return result;
 };

@@ -1,3 +1,15 @@
+const FETCH_CHECKPOINT_EVENTS = 'fetchCheckpointEvents';
+const FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM = 'fetchCheckpointEventsByPageNum';
+const FETCH_CHECKPOINT_EVENTS_ADD_EVENT = 'fetchCheckpointEventsAddEvent';
+const FETCH_CHECKPOINT_EVENTS_EDIT_EVENT = 'fetchCheckpointEventsEditEvent';
+const FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT = 'fetchCheckpointEventsRemoveEvent';
+
+export {
+  FETCH_CHECKPOINT_EVENTS, FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
+  FETCH_CHECKPOINT_EVENTS_ADD_EVENT, FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
+  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+};
+
 export function pad(n) {
   return n < 10 ? `0${n}` : n;
 }
@@ -16,6 +28,16 @@ export function generateDayAndMonthFromJSTimestamp(jsTimestamp) {
 export function generateDayMonthAndYearFromJSTimestamp(jsTimestamp) {
   const date = new Date(jsTimestamp);
   return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${pad(date.getFullYear())}`;
+}
+
+export function generateYearMonthAndDateFromJSTimestamp(jsTimestamp) {
+  const date = new Date(jsTimestamp);
+  return `${pad(date.getFullYear())}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+}
+
+export function generateHoursMinutesAndSecondsFromJSTimestamp(jsTimestamp) {
+  const date = new Date(jsTimestamp);
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 export function getTodayUnixTimestamp() {

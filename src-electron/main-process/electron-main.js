@@ -4,11 +4,19 @@ import fs from 'fs';
 import DatabaseService from '../app/Database/DatabaseService';
 
 import {
-  fetchCheckpointEventsSend,
-  fetchCheckpointEventsByPageNumSend,
-  fetchCheckpointEventsAddEventSend,
-  fetchCheckpointEventsRemoveEventSend,
-  fetchCheckpointEventsEditEventSend,
+  FETCH_CHECKPOINT_EVENTS,
+  FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
+  FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
+  FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
+  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+} from '../app/utils/helper';
+
+import {
+  fetchCheckpointEvents,
+  fetchCheckpointEventsByPageNum,
+  fetchCheckpointEventsAddEvent,
+  fetchCheckpointEventsRemoveEvent,
+  fetchCheckpointEventsEditEvent,
 } from '../app/modules/eventsDatabaseService';
 
 const { ipcMain } = require('electron');
@@ -83,22 +91,26 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('fetchCheckpointEventsSend', (event) => {
-  fetchCheckpointEventsSend(event, global.knex);
+ipcMain.handle(FETCH_CHECKPOINT_EVENTS, async (event) => {
+  const result = await fetchCheckpointEvents(event, global.knex);
+  return result;
 });
 
-ipcMain.on('fetchCheckpointEventsByPageNumSend', (event, page) => {
-  fetchCheckpointEventsByPageNumSend(event, global.knex, page);
+ipcMain.handle(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, async (event, page) => {
+  const result = await fetchCheckpointEventsByPageNum(event, global.knex, page);
+  return result;
 });
 
-ipcMain.on('fetchCheckpointEventsAddEventSend', (event, row) => {
-  fetchCheckpointEventsAddEventSend(event, global.knex, row);
+ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, async (event, row) => {
+  const result = fetchCheckpointEventsAddEvent(event, global.knex, row);
+  return result;
 });
 
-ipcMain.on('fetchCheckpointEventsRemoveEventSend', (event, rowIdx) => {
-  fetchCheckpointEventsRemoveEventSend(event, global.knex, rowIdx);
+ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, async (event, rowIdx) => {
+  const result = fetchCheckpointEventsRemoveEvent(event, global.knex, rowIdx);
+  return result;
 });
 
-ipcMain.on('fetchCheckpointEventsEditEventSend', (event, dataLocal) => {
-  fetchCheckpointEventsEditEventSend(event, global.knex, dataLocal.curRowIdx, dataLocal.curRow);
+ipcMain.handle(FETCH_CHECKPOINT_EVENTS_EDIT_EVENT, async (event, dataLocal) => {
+  await fetchCheckpointEventsEditEvent(event, global.knex, dataLocal.curRowIdx, dataLocal.curRow);
 });

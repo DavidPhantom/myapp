@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <q-btn label="Add event" color="primary" @click="addRowModalWindowIsOpened = true" />
-    <q-dialog v-model="addRowModalWindowIsOpened" v-on:keyup.enter="plugAdd">
+    <q-dialog v-model="addRowModalWindowIsOpened" v-on:keyup.enter="addEvent">
       <q-card>
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Add event</div>
@@ -44,7 +44,7 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" @click="plugAdd" />
+          <q-btn flat label="OK" color="primary" @click="addEvent" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -65,7 +65,7 @@
             dense
             @click="[editRowModalWindowIsOpened = true, editRow(props.row)]"
           />
-          <q-dialog v-model="editRowModalWindowIsOpened" v-on:keyup.enter="plugEdit">
+          <q-dialog v-model="editRowModalWindowIsOpened" v-on:keyup.enter="editEvent">
             <q-card>
               <q-card-section class="row items-center q-pb-none">
                 <div class="text-h6">Edit event</div>
@@ -109,7 +109,7 @@
               </q-card-section>
 
               <q-card-actions align="right">
-                <q-btn flat label="OK" color="primary" @click="plugEdit" />
+                <q-btn flat label="OK" color="primary" @click="editEvent" />
               </q-card-actions>
             </q-card>
           </q-dialog>
@@ -137,7 +137,16 @@
 
 <script>
 
-import { convertToUnixTimestamp, getTodayUnixTimestamp } from '../../src-electron/app/utils/helper';
+import {
+  FETCH_CHECKPOINT_EVENTS,
+  FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
+  FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
+  FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
+  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  convertToUnixTimestamp, getTodayUnixTimestamp,
+  generateYearMonthAndDateFromJSTimestamp,
+  generateHoursMinutesAndSecondsFromJSTimestamp,
+} from '../../src-electron/app/utils/helper';
 
 export default {
   name: 'Events',
@@ -185,15 +194,14 @@ export default {
     };
   },
   async beforeMount() {
-    window.send('fetchCheckpointEventsSend');
-    window.recieve('fetchCheckpointEventsRecieve', (dataForTable, pagesNum) => {
-      this.events = dataForTable;
-      this.pagesNum = pagesNum;
-    });
+    const data = await window.invoke(FETCH_CHECKPOINT_EVENTS);
+    this.events = data.checkpointEventListForTable;
+    this.pagesNum = data.checkpointEventsPagesNum;
+    this.countEvents = data.checkpointEventsNum;
   },
 
   methods: {
-    plugAdd() {
+    async addEvent() {
       let dateCur;
       if (!this.plate) {
         this.plateIsIncorrect = true;
@@ -218,12 +226,10 @@ export default {
         dateCur = convertToUnixTimestamp(dateCur);
       }
       const row = { plate: this.plate, date: dateCur, camera: this.camera };
-      window.send('fetchCheckpointEventsAddEventSend', row);
-      window.recieve('fetchCheckpointEventsAddEventRecieve', (pagesNum, countEvents) => {
-        this.pagesNum = pagesNum;
-        this.countEvents = countEvents;
-        this.changeVisibleTableContent(this.page - 1);
-      });
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, row);
+      this.pagesNum = data.checkpointEventsPagesNum;
+      this.countEvents = data.checkpointEventsNum;
+      await this.changeVisibleTableContent(this.page - 1);
       this.plate = '';
       this.camera = '';
       this.date = '';
@@ -236,7 +242,7 @@ export default {
       return true;
     },
 
-    plugEdit() {
+    async editEvent() {
       let dateCur;
       if (!this.plate) {
         this.plateIsIncorrect = true;
@@ -262,10 +268,8 @@ export default {
       }
       const row = { plate: this.plate, date: dateCur, camera: this.camera };
       const dataLocal = { curRowIdx: this.rowIdx, curRow: row };
-      window.send('fetchCheckpointEventsEditEventSend', dataLocal);
-      window.recieve('fetchCheckpointEventsEditEventRecieve', () => {
-        this.changeVisibleTableContent(this.page - 1);
-      });
+      await window.invoke(FETCH_CHECKPOINT_EVENTS_EDIT_EVENT, dataLocal);
+      await this.changeVisibleTableContent(this.page - 1);
       this.plate = '';
       this.camera = '';
       this.date = '';
@@ -294,29 +298,25 @@ export default {
     editRow(row) {
       this.rowIdx = row.id;
       this.plate = row.plate;
-      const tempDate = row.date.slice(0, 10).split('/');
-      this.date = `${tempDate[2]}/${tempDate[0]}/${tempDate[1]}`;
-      this.time = row.date.slice(11, 21);
+      const tempDate = new Date(`${row.date}`);
+      this.date = generateYearMonthAndDateFromJSTimestamp(tempDate);
+      this.time = generateHoursMinutesAndSecondsFromJSTimestamp(tempDate);
       this.camera = row.camera;
     },
 
-    removeRow(rowIdx) {
-      window.send('fetchCheckpointEventsRemoveEventSend', rowIdx);
-      window.recieve('fetchCheckpointEventsRemoveEventRecieve', (pagesNum, countEvents) => {
-        this.pagesNum = pagesNum;
-        this.countEvents = countEvents;
-        this.changeVisibleTableContent(this.page - 1);
-        this.$q.notify({
-          message: 'Event was deleted successfully',
-        });
+    async removeRow(rowIdx) {
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, rowIdx);
+      this.pagesNum = data.checkpointEventsPagesNum;
+      this.countEvents = data.checkpointEventsNum;
+      await this.changeVisibleTableContent(this.page - 1);
+      this.$q.notify({
+        message: 'Event was deleted successfully',
       });
     },
 
-    changeVisibleTableContent(page) {
-      window.send('fetchCheckpointEventsByPageNumSend', page);
-      window.recieve('fetchCheckpointEventsByPageNumRecieve', (dataForTable) => {
-        this.events = dataForTable;
-      });
+    async changeVisibleTableContent(page) {
+      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, page);
+      this.events = data.checkpointEventListForTable;
     },
   },
 };
