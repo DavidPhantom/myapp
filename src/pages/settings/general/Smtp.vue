@@ -1,35 +1,76 @@
 <template>
   <form
-    @submit.prevent.stop=""
-    style="max-width: 400px"
+    @submit.prevent.stop="save"
+    style="max-width: 645px"
     class="q-gutter-md"
   >
-    <q-input
-      v-model="smtp.port"
-      filled
-    />
+    <div class="row">
+      <q-input
+        v-model="smtp.port"
+        filled
+        class="col-8"
+      />
+      <span
+        class="col-4 q-pl-lg row items-center"
+      >
+      {{ $t('portDescription') }}
+      </span>
+    </div>
 
-    <q-input
-      v-model="smtp.host"
-      filled
-    />
+    <div class="row">
+      <q-input
+        v-model="smtp.host"
+        filled
+        class="col-8"
+      />
+      <span
+        class="col-4 q-pl-lg row items-center"
+      >
+      {{ $t('hostDescription') }}
+      </span>
+    </div>
 
-    <q-input
-      v-model="smtp.login"
-      filled
-    />
+    <div class="row">
+      <q-input
+        v-model="smtp.login"
+        filled
+        class="col-8"
+      />
+      <span
+        class="col-4 q-pl-lg row items-center"
+      >
+      {{ $t('loginDescription') }}
+      </span>
+    </div>
 
-    <q-input
-      v-model="smtp.email_from"
-      filled
-      type="email"
-      :rules="[val => !!val || 'Email is missing', isValidEmail]"
-    />
-    <q-input
-      v-model="smtp.password"
-      filled
-      type="password"
-    />
+    <div class="row">
+      <q-input
+        v-model="smtp.email_from"
+        filled
+        type="email"
+        class="col-8"
+        :rules="[val => !!val || 'Email is missing', isValidEmail]"
+      />
+      <span
+        class="col-4 row q-pl-lg items-center"
+      >
+      {{ $t('emailDescription') }}
+      </span>
+    </div>
+
+    <div class="row">
+      <q-input
+        v-model="smtp.password"
+        filled
+        class="col-8"
+        type="password"
+      />
+      <span
+        class="col-4 row q-pl-lg items-center"
+      >
+      {{ $t('passwordDescription') }}
+      </span>
+    </div>
 
     <q-btn label="OK" type="submit" color="primary" />
   </form>
@@ -53,6 +94,12 @@ export default {
   },
   methods: {
     isValidEmail,
+    save() {
+      this.$q.notify({
+        message: this.$t('savedSuccessfully'),
+        color: 'blue',
+      });
+    },
   },
 };
 </script>

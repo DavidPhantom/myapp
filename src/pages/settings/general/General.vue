@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-pl-md q-pt-md">
     <Smtp />
   </div>
 </template>
