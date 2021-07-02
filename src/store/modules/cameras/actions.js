@@ -8,9 +8,6 @@ import {
   UNSET_CAMERA,
   SET_SELECTED_CAMERA_MUTATION,
   UPDATE_CAMERA_MUTATION,
-  OPEN_CAMERA_DELETER_MUTATION,
-  OPEN_CAMERA_EDITOR_MUTATION,
-  OPEN_CAMERA_ADDING_MODAL_WINDOW_MUTATION,
   SET_SELECTED_CAMERA_STREAM_MUTATION,
 } from './mutations';
 
@@ -25,10 +22,6 @@ export const SET_SELECTED_CAMERA_STREAM_ACTION =
 export const CHECK_CAMERA_FOR_EXISTENCE = 'cameras/checkCameraForExistence';
 export const CHECK_CAMERA_RTSP_FOR_EXISTENCE =
   'cameras/checkCameraRtspForExistence';
-export const OPEN_CAMERA_DELETER_ACTION = 'cameras/openCameraDeleter';
-export const OPEN_CAMERA_EDITOR_ACTION = 'cameras/openCameraEditor';
-export const OPEN_CAMERA_ADDING_MODAL_WINDOW_ACTION =
-  'cameras/openCameraAdding';
 
 export const actions = {
   [FETCH_CAMERAS_LIMIT]: ({ commit }) => {
@@ -101,18 +94,6 @@ export const actions = {
     return knex('cameras')
       .where({ rtsp: typedCameraRtsp })
       .select();
-  },
-
-  [OPEN_CAMERA_DELETER_ACTION]: ({ commit }, isOpened) => {
-    commit(OPEN_CAMERA_DELETER_MUTATION, isOpened);
-  },
-
-  [OPEN_CAMERA_EDITOR_ACTION]: ({ commit }, isOpened) => {
-    commit(OPEN_CAMERA_EDITOR_MUTATION, isOpened);
-  },
-
-  [OPEN_CAMERA_ADDING_MODAL_WINDOW_ACTION]: ({ commit }, isOpened) => {
-    commit(OPEN_CAMERA_ADDING_MODAL_WINDOW_MUTATION, isOpened);
   },
 
   [SET_SELECTED_CAMERA_ACTION]: ({ commit }, camera) => {

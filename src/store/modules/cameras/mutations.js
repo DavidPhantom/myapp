@@ -3,9 +3,6 @@ export const SET_CAMERAS = 'SET_CAMERAS';
 export const SET_SELECTED_CAMERA_STREAM_MUTATION = 'SET_SELECTED_CAMERA_STREAM_MUTATION';
 export const UNSET_CAMERA = 'UNSET_CAMERA';
 export const UPDATE_CAMERA_MUTATION = 'UPDATE_CAMERA_MUTATION';
-export const OPEN_CAMERA_ADDING_MODAL_WINDOW_MUTATION = 'OPEN_CAMERA_ADDING_MODAL_WINDOW_MUTATION';
-export const OPEN_CAMERA_EDITOR_MUTATION = 'OPEN_CAMERA_EDITOR_MUTATION';
-export const OPEN_CAMERA_DELETER_MUTATION = 'OPEN_CAMERA_DELETER_MUTATION';
 export const SET_SELECTED_CAMERA_MUTATION = 'SET_SELECTED_CAMERA_MUTATION';
 export const SET_SELECTED_CAMERA_LOADING = 'SET_SELECTED_CAMERA_LOADING';
 export const SET_CAMERAS_LIMIT_ACHIEVED = 'SET_CAMERAS_LIMIT_ACHIEVED';
@@ -39,18 +36,6 @@ export const mutations = {
 
             return cam;
         });
-    },
-
-    [OPEN_CAMERA_ADDING_MODAL_WINDOW_MUTATION]: (state, isOpened) => {
-        state.addCameraModalIsOpened = isOpened;
-    },
-
-    [OPEN_CAMERA_EDITOR_MUTATION]: (state, isOpened) => {
-        state.editCameraModalIsOpened = isOpened;
-    },
-
-    [OPEN_CAMERA_DELETER_MUTATION]: (state, isOpened) => {
-        state.deleteCameraModalIsOpened = isOpened;
     },
 
     [SET_SELECTED_CAMERA_MUTATION]: (state, camera) => {
