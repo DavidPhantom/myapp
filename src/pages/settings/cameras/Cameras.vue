@@ -12,7 +12,7 @@
         v-for="camera in cameras"
         v-bind:key="camera.id"
       >
-        <div class="flex">
+        <div class="flex items-center">
           <div class="q-mr-sm flex">
             <img :src="cameraIcon" alt="" />
           </div>
