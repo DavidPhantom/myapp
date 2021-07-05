@@ -1,7 +1,7 @@
 import {
-  FETCH_CHECKPOINT_EVENTS,
-  FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  FETCH_CHECKPOINT_EVENTS_CHANNEL,
+  FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL,
+  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL,
 } from '../utils/invoke.types';
 
 import {
@@ -13,15 +13,15 @@ import {
 const { ipcMain } = require('electron');
 
 function initHandlers() {
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS,
+  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_CHANNEL,
     async () => fetchCheckpointEvents(global.knex));
 
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
+  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL,
     async (event, dataEvent) => {
       await fetchCheckpointEventsAddEvent(global.knex, dataEvent);
     });
 
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
+  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL,
     async (event, eventIndex) => {
       await fetchCheckpointEventsRemoveEvent(global.knex, eventIndex);
     });
