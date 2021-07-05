@@ -1,20 +1,24 @@
 <template>
-  <section class="settings-cameras q-pl-md q-pt-md">
+  <section class="q-pl-md q-pt-md">
     <q-btn label="Add Camera" color="primary" @click="openCreator" />
 
-    <div class="settings-cameras__cameras row wrap">
+    <div class="q-mt-md row wrap">
       <div
-        class="settings-cameras__cameras__camera"
+        class="
+          settings-cameras__camera
+          q-px-md q-mr-lg q-mb-sm flex
+          justify-between items-center
+        "
         v-for="camera in cameras"
         v-bind:key="camera.id"
       >
-        <div class="settings-cameras__cameras__camera__info">
-          <div class="settings-cameras__cameras__camera__info__icon">
-            <img :src="camera" alt="" />
+        <div class="flex">
+          <div class="q-mr-sm flex">
+            <img :src="cameraIcon" alt="" />
           </div>
 
-          <div class="settings-cameras__cameras__camera__info__title">
-            <p>{{ camera.name }}</p>
+          <div>
+            <span>{{ camera.name }}</span>
           </div>
         </div>
 
@@ -51,6 +55,7 @@
 <script>
 import mdiDelete from 'src/assets/img/icons/mdi-delete.svg';
 import mdiSettings from 'src/assets/img/icons/mdi-settings.svg';
+import cameraIcon from 'src/assets/img/icons/camera.svg';
 import CamerasCreator from './CamerasCreator.vue';
 import CamerasEditor from './CamerasEditor.vue';
 
@@ -64,6 +69,7 @@ export default {
     return {
       mdiDelete,
       mdiSettings,
+      cameraIcon,
       cameras: [
         {
           id: 0,
@@ -96,27 +102,11 @@ export default {
 
 <style lang="scss">
 .settings-cameras {
-  &__cameras {
-    margin: 16px 0 0 0;
-    &__camera {
-      display: flex;
-      justify-content: space-between;
-      padding: 16px 17px;
-      width: 230px;
-      height: 56px;
-      background: #f2f4f7;
-      border-radius: 10px;
-      margin: 0 19px 8px 0;
-
-      &__info {
-        display: flex;
-        &__icon {
-          img {
-            margin: 0 10px 0 0;
-          }
-        }
-      }
-    }
+  &__camera {
+    width: 230px;
+    height: 56px;
+    background: #f2f4f7;
+    border-radius: 10px;
   }
 }
 </style>
