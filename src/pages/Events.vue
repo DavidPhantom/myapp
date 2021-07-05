@@ -49,22 +49,25 @@
       </q-card>
     </q-dialog>
     <q-card-section>
-        <input
-          type="text"
-          placeholder="Find Plate Number"
-          v-model="plateSearch"
-          @input="handleCarNumber"
-        />
+      <input
+        type="text"
+        placeholder="Find Plate Number"
+        v-model="filter.plateFilter"
+        @input="handlePlateFilter"
+      />
       <div class="q-pa-md">
-        <q-date v-model="calendarDate" range @input="handleCalendarDate"/>
+        <q-date v-model="filter.dateFilter" range @input="handleDateFilter"/>
       </div>
     </q-card-section>
     <q-table
       title="Events"
-      :data="events"
+      :data="eventsForTable"
       :columns="columns"
       row-key="name"
-      hide-bottom
+      :pagination.sync="pagination"
+      :loading="loading"
+      :filter="filter"
+      @request="onRequest"
     >
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
@@ -79,25 +82,14 @@
         </q-td>
       </template>
     </q-table>
-    <div class="q-pa-lg flex flex-center">
-      <q-pagination
-        v-model="current"
-        :max="pagesNum"
-        direction-links
-        @input="handlePage"
-      />
-    </div>
   </div>
 </template>
 
 <script>
 import {
   FETCH_CHECKPOINT_EVENTS,
-  FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
   FETCH_CHECKPOINT_EVENTS_ADD_EVENT,
   FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT,
-  FETCH_CHECKPOINT_EVENTS_FILTER,
-  SET_FILTER_PLATE, SET_FILTER_DATE,
 } from '../../src-electron/app/utils/invoke.types';
 
 import {
@@ -109,23 +101,26 @@ export const messageEventAddSuccess = 'Event was added successfully';
 export const messageEventRemoveSuccess = 'Event was removed successfully';
 export const messagePlateError = 'Enter plate number';
 export const messageCameraError = 'Enter camera name';
+const toGetCount = 'count';
+const toGetData = 'data';
 
 export default {
   name: 'Events',
   data() {
     return {
+      filter: { plateFilter: null, dateFilter: null },
+      loading: false,
+      pagination: {
+        page: 1,
+        rowsPerPage: 0,
+        rowsNumber: 0,
+      },
       addEventModalWindowIsOpened: false,
-      current: 1,
-      page: 0,
-      pagesNum: 0,
-      countEvents: 0,
       eventIndex: 0,
       plate: '',
       camera: '',
       date: '',
       time: '',
-      plateSearch: '',
-      calendarDate: { from: '', to: '' },
       plateIsIncorrect: false,
       cameraIsIncorrect: false,
       columns: [
@@ -154,18 +149,110 @@ export default {
         },
       ],
       events: [],
+      eventsForTable: [],
     };
   },
   async beforeMount() {
-    const data = await window.invoke(FETCH_CHECKPOINT_EVENTS);
-    this.events = data.checkpointEventListForTable;
-    await this.setPagesNumAndCountEvents(data);
+    const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS);
+    this.events = eventsData.checkpointEventListForTable;
+    this.pagination.rowsPerPage = eventsData.rows;
+    this.onRequest({
+      pagination: this.pagination,
+      filter: { plateFilter: null, dateFilter: null },
+    });
   },
 
   methods: {
-    handlePage(e) {
-      this.page = e;
-      this.changeVisibleTableContent(this.page - 1);
+    onRequest(props) {
+      const {
+        page, rowsPerPage,
+      } = props.pagination;
+      this.loading = true;
+      setTimeout(() => {
+        this.pagination.rowsNumber = this.getEventsNumberCount();
+        const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage;
+        const startRow = (page - 1) * rowsPerPage;
+        const returnedData = this.fetchFromServer(startRow, fetchCount);
+        this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
+        this.pagination.page = page;
+        this.pagination.rowsPerPage = rowsPerPage;
+        this.loading = false;
+      }, 500);
+    },
+
+    fetchFromServer(startEvent, count) {
+      let data = [];
+      if (!this.filter.plateFilter && !this.filter.dateFilter) {
+        data = this.events;
+      } else {
+        data = this.getCountOrData(data, toGetData);
+      }
+      return data.slice(startEvent, startEvent + count);
+    },
+
+    getEventsNumberCount() {
+      if (!this.filter.plateFilter && !this.filter.dateFilter) {
+        return this.events.length;
+      }
+      const count = 0;
+      return this.getCountOrData(count, toGetCount);
+    },
+
+    getCountOrData(countOrData, val) {
+      if (this.filter.plateFilter && this.filter.dateFilter) {
+        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
+        let date;
+        this.events.forEach((event) => {
+          date = convertToTimestamp(event.date);
+          if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
+            countOrData = this.switchCountOrData(countOrData, val, event);
+          }
+        });
+        return countOrData;
+      }
+      if (this.filter.plateFilter) {
+        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
+        this.events.forEach((event) => {
+          if (this.checkPlate(event.plate, carNumber)) {
+            countOrData = this.switchCountOrData(countOrData, val, event);
+          }
+        });
+      }
+      if (this.filter.dateFilter) {
+        let date;
+        this.events.forEach((event) => {
+          date = convertToTimestamp(event.date);
+          if (this.checkDate(date)) {
+            countOrData = this.switchCountOrData(countOrData, val, event);
+          }
+        });
+      }
+      return countOrData;
+    },
+
+    switchCountOrData(countOrData, val, event) {
+      switch (val) {
+        case toGetCount:
+          countOrData += 1;
+          break;
+        case toGetData:
+          countOrData.push(event);
+          break;
+        default:
+          countOrData += 1;
+          break;
+      }
+      return countOrData;
+    },
+
+    checkPlate(plate, carNumber) {
+      return plate.toUpperCase().match(carNumber.toUpperCase());
+    },
+
+    checkDate(date) {
+      if (date >= this.filter.dateFilter.dateFrom
+        && date <= this.filter.dateFilter.dateTo) return true;
+      return false;
     },
 
     handlePlate() {
@@ -176,31 +263,34 @@ export default {
       this.cameraIsIncorrect = false;
     },
 
-    async handleCarNumber(e) {
-      await this.setFilterAndFilterData(SET_FILTER_PLATE, e.target.value);
+    async handlePlateFilter(e) {
+      this.filter.plateFilter = e.target.value;
     },
 
-    async handleCalendarDate() {
+    async handleDateFilter() {
       let date;
-      if (this.calendarDate) {
-        const dateFrom = this.calendarDate.from;
-        const dateTo = this.calendarDate.to;
+      if (this.filter.dateFilter) {
+        const dateFrom = this.filter.dateFilter.from;
+        const dateTo = this.filter.dateFilter.to;
         const dateFromTimeStamp = convertToTimestamp(dateFrom);
         const dateToTimeStamp = convertToTimestamp(dateTo) + 24 * 60 * 60;
         date = { dateFrom: dateFromTimeStamp, dateTo: dateToTimeStamp };
       } else {
         date = null;
       }
-      await this.setFilterAndFilterData(SET_FILTER_DATE, date);
+      this.filter.dateFilter = date;
     },
 
     async addEvent() {
       const dateEvent = await this.checkPlateCameraAndDate();
       if (dateEvent) {
         const event = { plate: this.plate, date: dateEvent, camera: this.camera };
-        const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, event);
-        await this.setPagesNumAndCountEvents(data);
-        await this.changeVisibleTableContent(this.page - 1);
+        await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT, event);
+        const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS);
+        this.events = eventsData.checkpointEventListForTable;
+        this.onRequest({
+          pagination: this.pagination,
+        });
         await this.resetData();
         this.addEventModalWindowIsOpened = false;
         await this.notifyEventAddSuccess();
@@ -211,22 +301,13 @@ export default {
     },
 
     async removeEvent(eventIndex) {
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, eventIndex);
-      await this.setPagesNumAndCountEvents(data);
-      await this.changeVisibleTableContent(this.page - 1);
+      await window.invoke(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, eventIndex);
+      const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS);
+      this.events = eventsData.checkpointEventListForTable;
+      this.onRequest({
+        pagination: this.pagination,
+      });
       await this.notifyEventRemoveSuccess();
-    },
-
-    async setFilterAndFilterData(filter, filterData) {
-      await window.invoke(filter, filterData);
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_FILTER);
-      await this.setPagesNumAndCountEvents(data);
-      await this.changeVisibleTableContent(this.page - 1);
-    },
-
-    async changeVisibleTableContent(page) {
-      const data = await window.invoke(FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM, page);
-      this.events = data.checkpointEventListForTable;
     },
 
     checkPlateCameraAndDate() {
@@ -255,11 +336,6 @@ export default {
       this.camera = '';
       this.date = '';
       this.time = '';
-    },
-
-    setPagesNumAndCountEvents(data) {
-      this.pagesNum = data.checkpointEventsPagesNum;
-      this.countEvents = data.checkpointEventsNum;
     },
 
     async notifyEventAddSuccess() {
