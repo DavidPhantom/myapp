@@ -42,7 +42,7 @@
 
         <q-card-section>
           <form class="common-form" v-on:submit.prevent="">
-            <input
+            <q-input
               type="email"
               :class="
                 emailIsIncorrect && 'common-form__error-input'

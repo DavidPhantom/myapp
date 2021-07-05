@@ -10,7 +10,7 @@
         </q-card-section>
         <q-card-section>
           <form class="common-form" v-on:submit.prevent="">
-            <input
+            <q-input
               type="text"
               :class="
                 plateIsIncorrect && 'common-form__error-input'
@@ -31,7 +31,7 @@
                 format24h
               />
             </div>
-            <input
+            <q-input
               type="text"
               :class="
                 cameraIsIncorrect && 'common-form__error-input'
@@ -49,7 +49,7 @@
       </q-card>
     </q-dialog>
     <q-card-section>
-      <input
+      <q-input
         type="text"
         placeholder="Find Plate Number"
         v-model="filter.plateFilter"
@@ -108,7 +108,7 @@ export default {
   name: 'Events',
   data() {
     return {
-      filter: { plateFilter: null, dateFilter: null },
+      filter: { plateFilter: '', dateFilter: '' },
       loading: false,
       pagination: {
         page: 1,
@@ -172,7 +172,7 @@ export default {
         this.pagination.rowsNumber = this.getEventsNumberCount();
         const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage;
         const startRow = (page - 1) * rowsPerPage;
-        const returnedData = this.fetchFromServer(startRow, fetchCount);
+        const returnedData = this.fetchFromServerEventsData(startRow, fetchCount);
         this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -180,7 +180,7 @@ export default {
       }, 500);
     },
 
-    fetchFromServer(startEvent, count) {
+    fetchFromServerEventsData(startEvent, count) {
       let data = [];
       if (!this.filter.plateFilter && !this.filter.dateFilter) {
         data = this.events;
