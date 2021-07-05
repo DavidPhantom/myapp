@@ -1,19 +1,3 @@
-const FETCH_CHECKPOINT_EVENTS = 'fetchCheckpointEvents';
-const FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM = 'fetchCheckpointEventsByPageNum';
-const FETCH_CHECKPOINT_EVENTS_ADD_EVENT = 'fetchCheckpointEventsAddEvent';
-const FETCH_CHECKPOINT_EVENTS_EDIT_EVENT = 'fetchCheckpointEventsEditEvent';
-const FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT = 'fetchCheckpointEventsRemoveEvent';
-const FETCH_CHECKPOINT_EVENTS_FILTER = 'fetchCheckpointEventsFilter';
-const SET_FILTER_PLATE = 'setFilterPlate';
-const SET_FILTER_DATE = 'setFilterDate';
-
-export {
-  FETCH_CHECKPOINT_EVENTS, FETCH_CHECKPOINT_EVENTS_BY_PAGE_NUM,
-  FETCH_CHECKPOINT_EVENTS_ADD_EVENT, FETCH_CHECKPOINT_EVENTS_EDIT_EVENT,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT, FETCH_CHECKPOINT_EVENTS_FILTER,
-  SET_FILTER_PLATE, SET_FILTER_DATE,
-};
-
 export function pad(n) {
   return n < 10 ? `0${n}` : n;
 }
@@ -68,9 +52,9 @@ export function setDate(data) {
   return data;
 }
 
-export function notifyGeneral(message, color, q) {
+export function notifyGeneral(messageForUser, colorMessage, q) {
   q.notify({
-    message: `${message}`,
-    color: `${color}`,
+    message: messageForUser,
+    color: colorMessage,
   });
 }
