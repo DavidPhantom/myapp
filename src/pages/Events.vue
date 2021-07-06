@@ -103,8 +103,6 @@ export const messageEventAddSuccess = 'Event was added successfully';
 export const messageEventRemoveSuccess = 'Event was removed successfully';
 export const messagePlateError = 'Enter plate number';
 export const messageCameraError = 'Enter camera name';
-const toGetCount = 'count';
-const toGetData = 'data';
 
 export default {
   name: 'Events',
@@ -185,40 +183,26 @@ export default {
     },
 
     fetchFromServerEventsData(startEvent, count) {
-      let data = [];
+      const data = [];
       if (!this.filter.plateFilter && !this.filter.dateFilter) {
-        data = this.events;
-      } else {
-        data = this.getCountOrData(data, toGetData);
+        return this.events.slice(startEvent, startEvent + count);
       }
-      return data.slice(startEvent, startEvent + count);
-    },
-
-    getEventsNumberCount() {
-      if (!this.filter.plateFilter && !this.filter.dateFilter) {
-        return this.events.length;
-      }
-      const count = 0;
-      return this.getCountOrData(count, toGetCount);
-    },
-
-    getCountOrData(countOrData, val) {
       if (this.filter.plateFilter && this.filter.dateFilter) {
         const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
         let date;
         this.events.forEach((event) => {
           date = convertToTimestamp(event.date);
           if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
-            countOrData = this.switchCountOrData(countOrData, val, event);
+            data.push(event);
           }
         });
-        return countOrData;
+        return data.slice(startEvent, startEvent + count);
       }
       if (this.filter.plateFilter) {
         const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
         this.events.forEach((event) => {
           if (this.checkPlate(event.plate, carNumber)) {
-            countOrData = this.switchCountOrData(countOrData, val, event);
+            data.push(event);
           }
         });
       }
@@ -227,26 +211,47 @@ export default {
         this.events.forEach((event) => {
           date = convertToTimestamp(event.date);
           if (this.checkDate(date)) {
-            countOrData = this.switchCountOrData(countOrData, val, event);
+            data.push(event);
           }
         });
       }
-      return countOrData;
+      return data.slice(startEvent, startEvent + count);
     },
 
-    switchCountOrData(countOrData, val, event) {
-      switch (val) {
-        case toGetCount:
-          countOrData += 1;
-          break;
-        case toGetData:
-          countOrData.push(event);
-          break;
-        default:
-          countOrData += 1;
-          break;
+    getEventsNumberCount() {
+      if (!this.filter.plateFilter && !this.filter.dateFilter) {
+        return this.events.length;
       }
-      return countOrData;
+      let count = 0;
+      if (this.filter.plateFilter && this.filter.dateFilter) {
+        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
+        let date;
+        this.events.forEach((event) => {
+          date = convertToTimestamp(event.date);
+          if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
+            count += 1;
+          }
+        });
+        return count;
+      }
+      if (this.filter.plateFilter) {
+        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
+        this.events.forEach((event) => {
+          if (this.checkPlate(event.plate, carNumber)) {
+            count += 1;
+          }
+        });
+      }
+      if (this.filter.dateFilter) {
+        let date;
+        this.events.forEach((event) => {
+          date = convertToTimestamp(event.date);
+          if (this.checkDate(date)) {
+            count += 1;
+          }
+        });
+      }
+      return count;
     },
 
     checkPlate(plate, carNumber) {
