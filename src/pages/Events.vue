@@ -184,41 +184,19 @@ export default {
     },
 
     fetchFromServerEventsData() {
-      let data = [];
-      if (!this.filter.plateFilter && !this.filter.dateFilter) {
-        return this.events;
-      }
-      if (this.filter.plateFilter && this.filter.dateFilter) {
-        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
-        let date;
-        data = this.events.filter((event) => {
-          let tempEvent;
-          date = convertToTimestamp(event.date);
-          if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
-            tempEvent = event;
-          }
-          return tempEvent;
-        });
-        return data;
-      }
+      let data = this.events;
       if (this.filter.plateFilter) {
-        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
-        data = this.events.filter((event) => {
-          let tempEvent;
-          if (this.checkPlate(event.plate, carNumber)) {
-            tempEvent = event;
-          }
+        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*').replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+        data = data.filter((event) => {
+          const tempEvent = this.checkPlate(event.plate, carNumber) ? event : null;
           return tempEvent;
         });
       }
       if (this.filter.dateFilter) {
         let date;
-        data = this.events.filter((event) => {
-          let tempEvent;
+        data = data.filter((event) => {
           date = convertToTimestamp(event.date);
-          if (this.checkDate(date)) {
-            tempEvent = event;
-          }
+          const tempEvent = this.checkDate(date) ? event : null;
           return tempEvent;
         });
       }
@@ -230,9 +208,7 @@ export default {
     },
 
     checkDate(date) {
-      if (date >= this.filter.dateFilter.dateFrom
-        && date <= this.filter.dateFilter.dateTo) return true;
-      return false;
+      return date >= this.filter.dateFilter.dateFrom && date <= this.filter.dateFilter.dateTo;
     },
 
     handlePlate() {
@@ -259,8 +235,8 @@ export default {
           dateFrom = this.filter.dateFilter;
           dateTo = dateFrom;
         }
-        const dateFromTimeStamp = convertToTimestamp(dateFrom) - 24 * 60 * 60;
-        const dateToTimeStamp = convertToTimestamp(dateTo);
+        const dateFromTimeStamp = convertToTimestamp(dateFrom);
+        const dateToTimeStamp = convertToTimestamp(dateTo) + 24 * 60 * 60;
         date = {
           dateFrom: dateFromTimeStamp,
           dateTo: dateToTimeStamp,

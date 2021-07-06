@@ -3,20 +3,9 @@ import {
 } from '../utils/helper';
 
 async function fetchCheckpoint(knex, tableName) {
-  let dataForTable;
-  function setData(data) {
-    if (!data.length) {
-      data = [];
-      return data;
-    }
-    data = setDate(data);
-    return data;
-  }
-  await knex(tableName)
-    .orderBy('id', 'desc')
-    .then((data) => {
-      dataForTable = setData(data);
-    });
+  const data = await knex(tableName)
+    .orderBy('id', 'desc');
+  const dataForTable = setDate(data);
   return dataForTable;
 }
 

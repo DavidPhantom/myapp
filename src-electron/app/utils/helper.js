@@ -46,9 +46,10 @@ export function convertToTimestamp(dateYearMonthAndDate) {
 }
 
 export function setDate(data) {
-  data.forEach((item, i, dataLocal) => {
-    dataLocal[i].date = generateDateFromJSTimestamp(convertToJsTimestamp(item.date));
-  });
+  data = data.map((item) => ({
+    ...item,
+    date: generateDateFromJSTimestamp(convertToJsTimestamp(item.date)),
+  }));
   return data;
 }
 
