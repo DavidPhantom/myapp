@@ -169,7 +169,7 @@ export default {
         page, rowsPerPage,
       } = props.pagination;
       this.loading = true;
-      setTimeout(() => {
+      try {
         this.pagination.rowsNumber = this.getEventsNumberCount();
         const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage;
         const startRow = (page - 1) * rowsPerPage;
@@ -177,8 +177,11 @@ export default {
         this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
+      } catch (e) {
+        console.error(e);
+      } finally {
         this.loading = false;
-      }, 500);
+      }
     },
 
     fetchFromServerEventsData(startEvent, count) {
