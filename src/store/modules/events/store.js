@@ -5,9 +5,9 @@ import { actions } from './actions';
 export const getInitialState = () => ({
   events: [],
   rows: 5,
-  plateFilter: null,
-  dateFilter: null,
-  page: 0,
+  plateFilter: '',
+  dateFilter: '',
+  page: 1,
 });
 
 const state = {

@@ -8,6 +8,7 @@ import {
   SET_FILTER_PLATE,
   SET_FILTER_DATE,
   SET_NUMBER_PAGE,
+  SET_ROWS_PER_PAGE,
 } from './mutations';
 
 const EVENTS_TABLE = 'events';
@@ -18,6 +19,7 @@ export const REMOVE_EVENT = 'events/removeEvent';
 export const FILTER_BY_PLATE = 'events/filterByPlate';
 export const FILTER_BY_DATE = 'events/filterByDate';
 export const CURRENT_NUMBER_PAGE = 'events/currentNumberPage';
+export const CURRENT_ROWS_PER_PAGE = 'events/rowsPerPage';
 
 export const actions = {
   [FETCH_CHECKPOINT_EVENTS]: async (context) => {
@@ -44,5 +46,8 @@ export const actions = {
   },
   [CURRENT_NUMBER_PAGE]: async (context, page) => {
     context.commit(SET_NUMBER_PAGE, page);
+  },
+  [CURRENT_ROWS_PER_PAGE]: async (context, rowsPerPage) => {
+    context.commit(SET_ROWS_PER_PAGE, rowsPerPage);
   },
 };
