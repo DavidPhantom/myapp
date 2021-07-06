@@ -188,7 +188,7 @@ export default {
       if (this.filter.plateFilter) {
         const carNumber = this.filter.plateFilter.replace(/\*/g, '.*').replace(/[.+?^${}()|[\]\\]/g, '\\$&');
         data = data.filter((event) => {
-          const tempEvent = this.checkPlate(event.plate, carNumber) ? event : null;
+          const tempEvent = this.filterByPlate(event.plate, carNumber, event);
           return tempEvent;
         });
       }
@@ -196,19 +196,20 @@ export default {
         let date;
         data = data.filter((event) => {
           date = convertToTimestamp(event.date);
-          const tempEvent = this.checkDate(date) ? event : null;
+          const tempEvent = this.filterByDate(date, event);
           return tempEvent;
         });
       }
       return data;
     },
 
-    checkPlate(plate, carNumber) {
-      return plate.toUpperCase().match(carNumber.toUpperCase());
+    filterByPlate(plate, carNumber, event) {
+      return plate.toUpperCase().match(carNumber.toUpperCase()) ? event : null;
     },
 
-    checkDate(date) {
-      return date >= this.filter.dateFilter.dateFrom && date <= this.filter.dateFilter.dateTo;
+    filterByDate(date, event) {
+      return date >= this.filter.dateFilter.dateFrom
+      && date <= this.filter.dateFilter.dateTo ? event : null;
     },
 
     handlePlate() {
