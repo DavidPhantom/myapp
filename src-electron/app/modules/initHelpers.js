@@ -1,29 +1,27 @@
 import {
   FETCH_CHECKPOINT_CHANNEL,
-  FETCH_CHECKPOINT_ADD_CHANNEL,
-  FETCH_CHECKPOINT_REMOVE_CHANNEL,
+  ADD_ROW_CHANNEL,
+  REMOVE_ROW_CHANNEL,
 } from '../utils/invoke.types';
 
 import {
-  fetchCheckpointChannel,
-  fetchCheckpointsAddChannel,
-  fetchCheckpointRemoveChannel,
+  fetchCheckpoint, addRow, removeRow,
 } from './fetchDatabaseService';
 
 const { ipcMain } = require('electron');
 
 function initHandlers() {
   ipcMain.handle(FETCH_CHECKPOINT_CHANNEL,
-    async (event, data) => fetchCheckpointChannel(global.knex, data));
+    async (event, data) => fetchCheckpoint(global.knex, data));
 
-  ipcMain.handle(FETCH_CHECKPOINT_ADD_CHANNEL,
+  ipcMain.handle(ADD_ROW_CHANNEL,
     async (event, data) => {
-      await fetchCheckpointsAddChannel(global.knex, data);
+      await addRow(global.knex, data);
     });
 
-  ipcMain.handle(FETCH_CHECKPOINT_REMOVE_CHANNEL,
+  ipcMain.handle(REMOVE_ROW_CHANNEL,
     async (event, data) => {
-      await fetchCheckpointRemoveChannel(global.knex, data);
+      await removeRow(global.knex, data);
     });
 }
 

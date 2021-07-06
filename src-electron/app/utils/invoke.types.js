@@ -1,9 +1,9 @@
 const FETCH_CHECKPOINT_CHANNEL = 'fetchCheckpointChannel';
-const FETCH_CHECKPOINT_ADD_CHANNEL = 'fetchCheckpointAddChannel';
-const FETCH_CHECKPOINT_REMOVE_CHANNEL = 'fetchCheckpointRemoveChannel';
+const ADD_ROW_CHANNEL = 'addRowChannel';
+const REMOVE_ROW_CHANNEL = 'removeRowChannel';
 
 export {
   FETCH_CHECKPOINT_CHANNEL,
-  FETCH_CHECKPOINT_ADD_CHANNEL,
-  FETCH_CHECKPOINT_REMOVE_CHANNEL,
+  ADD_ROW_CHANNEL,
+  REMOVE_ROW_CHANNEL,
 };

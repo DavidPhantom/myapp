@@ -88,8 +88,8 @@
 <script>
 import {
   FETCH_CHECKPOINT_EVENTS,
-  FETCH_CHECKPOINT_ADD_EVENTS,
-  FETCH_CHECKPOINT_REMOVE_EVENTS,
+  ADD_EVENT,
+  REMOVE_EVENT,
 } from 'src/store/modules/events/actions';
 
 import { EVENTS, ROWS } from 'src/store/modules/events/getters';
@@ -168,10 +168,11 @@ export default {
       } = props.pagination;
       this.loading = true;
       try {
-        this.pagination.rowsNumber = this.getEventsNumberCount();
+        let returnedData = this.fetchFromServerEventsData();
+        this.pagination.rowsNumber = returnedData.length;
         const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage;
         const startRow = (page - 1) * rowsPerPage;
-        const returnedData = this.fetchFromServerEventsData(startRow, fetchCount);
+        returnedData = returnedData.slice(startRow, startRow + fetchCount);
         this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -182,76 +183,46 @@ export default {
       }
     },
 
-    fetchFromServerEventsData(startEvent, count) {
-      const data = [];
+    fetchFromServerEventsData() {
+      let data = [];
       if (!this.filter.plateFilter && !this.filter.dateFilter) {
-        return this.events.slice(startEvent, startEvent + count);
+        return this.events;
       }
       if (this.filter.plateFilter && this.filter.dateFilter) {
         const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
         let date;
-        this.events.forEach((event) => {
+        data = this.events.filter((event) => {
+          let tempEvent;
           date = convertToTimestamp(event.date);
           if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
-            data.push(event);
+            tempEvent = event;
           }
+          return tempEvent;
         });
-        return data.slice(startEvent, startEvent + count);
+        return data;
       }
       if (this.filter.plateFilter) {
         const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
-        this.events.forEach((event) => {
+        data = this.events.filter((event) => {
+          let tempEvent;
           if (this.checkPlate(event.plate, carNumber)) {
-            data.push(event);
+            tempEvent = event;
           }
+          return tempEvent;
         });
       }
       if (this.filter.dateFilter) {
         let date;
-        this.events.forEach((event) => {
+        data = this.events.filter((event) => {
+          let tempEvent;
           date = convertToTimestamp(event.date);
           if (this.checkDate(date)) {
-            data.push(event);
+            tempEvent = event;
           }
+          return tempEvent;
         });
       }
-      return data.slice(startEvent, startEvent + count);
-    },
-
-    getEventsNumberCount() {
-      if (!this.filter.plateFilter && !this.filter.dateFilter) {
-        return this.events.length;
-      }
-      let count = 0;
-      if (this.filter.plateFilter && this.filter.dateFilter) {
-        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
-        let date;
-        this.events.forEach((event) => {
-          date = convertToTimestamp(event.date);
-          if (this.checkPlate(event.plate, carNumber) && this.checkDate(date)) {
-            count += 1;
-          }
-        });
-        return count;
-      }
-      if (this.filter.plateFilter) {
-        const carNumber = this.filter.plateFilter.replace(/\*/g, '.*');
-        this.events.forEach((event) => {
-          if (this.checkPlate(event.plate, carNumber)) {
-            count += 1;
-          }
-        });
-      }
-      if (this.filter.dateFilter) {
-        let date;
-        this.events.forEach((event) => {
-          date = convertToTimestamp(event.date);
-          if (this.checkDate(date)) {
-            count += 1;
-          }
-        });
-      }
-      return count;
+      return data;
     },
 
     checkPlate(plate, carNumber) {
@@ -301,25 +272,26 @@ export default {
     },
 
     async addEvent() {
-      const dateEvent = await this.checkPlateCameraAndDate();
-      if (dateEvent) {
-        const event = { plate: this.plate, date: dateEvent, camera: this.camera };
-        await this.$store.dispatch(FETCH_CHECKPOINT_ADD_EVENTS, event);
-        this.events = this.$store.getters[EVENTS];
-        this.onRequest({
-          pagination: this.pagination,
-        });
-        await this.resetData();
-        this.addEventModalWindowIsOpened = false;
-        await this.notifyEventAddSuccess();
-        return true;
+      if (this.checkPlateAndCamera()) {
+        const dateEvent = await this.setDate();
+        if (dateEvent) {
+          const event = { plate: this.plate, date: dateEvent, camera: this.camera };
+          await this.$store.dispatch(ADD_EVENT, event);
+          this.events = this.$store.getters[EVENTS];
+          this.onRequest({
+            pagination: this.pagination,
+          });
+          await this.resetData();
+          this.addEventModalWindowIsOpened = false;
+          await this.notifyEventAddSuccess();
+          return true;
+        }
       }
-
       return false;
     },
 
     async removeEvent(eventIndex) {
-      await this.$store.dispatch(FETCH_CHECKPOINT_REMOVE_EVENTS, eventIndex);
+      await this.$store.dispatch(REMOVE_EVENT, eventIndex);
       this.events = this.$store.getters[EVENTS];
       this.onRequest({
         pagination: this.pagination,
@@ -327,18 +299,22 @@ export default {
       await this.notifyEventRemoveSuccess();
     },
 
-    checkPlateCameraAndDate() {
-      let dateEvent;
+    checkPlateAndCamera() {
       if (!this.plate) {
         this.plateIsIncorrect = true;
         this.notifyPlateError();
-        return null;
+        return false;
       }
       if (!this.camera) {
         this.cameraIsIncorrect = true;
         this.notifyCameraError();
-        return null;
+        return false;
       }
+      return true;
+    },
+
+    setDate() {
+      let dateEvent;
       if (!this.date || !this.time) {
         dateEvent = getTodayUnixTimestamp();
       } else {
