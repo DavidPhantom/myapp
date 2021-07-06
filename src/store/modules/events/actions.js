@@ -5,6 +5,9 @@ import {
 } from 'app/src-electron/app/utils/invoke.types';
 import {
   SET_EVENTS,
+  SET_FILTER_PLATE,
+  SET_FILTER_DATE,
+  SET_NUMBER_PAGE,
 } from './mutations';
 
 const EVENTS_TABLE = 'events';
@@ -12,6 +15,9 @@ const EVENTS_TABLE = 'events';
 export const FETCH_CHECKPOINT_EVENTS = 'events/fetchCheckpointEvents';
 export const ADD_EVENT = 'events/addEvent';
 export const REMOVE_EVENT = 'events/removeEvent';
+export const FILTER_BY_PLATE = 'events/filterByPlate';
+export const FILTER_BY_DATE = 'events/filterByDate';
+export const CURRENT_NUMBER_PAGE = 'events/currentNumberPage';
 
 export const actions = {
   [FETCH_CHECKPOINT_EVENTS]: async (context) => {
@@ -29,5 +35,14 @@ export const actions = {
     await window.invoke(REMOVE_ROW_CHANNEL, data);
     const events = await window.invoke(FETCH_CHECKPOINT_CHANNEL, EVENTS_TABLE);
     context.commit(SET_EVENTS, events);
+  },
+  [FILTER_BY_PLATE]: async (context, plate) => {
+    context.commit(SET_FILTER_PLATE, plate);
+  },
+  [FILTER_BY_DATE]: async (context, date) => {
+    context.commit(SET_FILTER_DATE, date);
+  },
+  [CURRENT_NUMBER_PAGE]: async (context, page) => {
+    context.commit(SET_NUMBER_PAGE, page);
   },
 };

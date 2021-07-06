@@ -89,10 +89,12 @@
 import {
   FETCH_CHECKPOINT_EVENTS,
   ADD_EVENT,
-  REMOVE_EVENT,
+  REMOVE_EVENT, FILTER_BY_PLATE, FILTER_BY_DATE, CURRENT_NUMBER_PAGE,
 } from 'src/store/modules/events/actions';
 
-import { EVENTS, ROWS } from 'src/store/modules/events/getters';
+import {
+  EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE,
+} from 'src/store/modules/events/getters';
 
 import {
   convertToUnixTimestamp, getTodayUnixTimestamp,
@@ -156,9 +158,11 @@ export default {
     await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS);
     this.events = this.$store.getters[EVENTS];
     this.pagination.rowsPerPage = this.$store.getters[ROWS];
+    this.filter.plateFilter = this.$store.getters[PLATE];
+    this.filter.dateFilter = this.$store.getters[DATE];
+    this.pagination.page = this.$store.getters[NUMBER_PAGE];
     this.onRequest({
       pagination: this.pagination,
-      filter: { plateFilter: '', dateFilter: '' },
     });
   },
   methods: {
@@ -175,6 +179,7 @@ export default {
         returnedData = returnedData.slice(startRow, startRow + fetchCount);
         this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
         this.pagination.page = page;
+        this.$store.dispatch(CURRENT_NUMBER_PAGE, page);
         this.pagination.rowsPerPage = rowsPerPage;
       } catch (e) {
         console.error(e);
@@ -187,7 +192,7 @@ export default {
       let data = this.events;
       if (this.filter.plateFilter) {
         const carNumber = this.filter.plateFilter.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-        data = data.filter((event) => this.checkPlate(event.plate, carNumber, event));
+        data = data.filter((event) => this.checkPlate(event.plate, carNumber));
       }
       if (this.filter.dateFilter) {
         let date;
@@ -199,13 +204,12 @@ export default {
       return data;
     },
 
-    checkPlate(plate, carNumber, event) {
-      return plate.toUpperCase().match(carNumber.toUpperCase()) ? event : null;
+    checkPlate(plate, carNumber) {
+      return plate.toUpperCase().match(carNumber.toUpperCase());
     },
 
-    checkDate(date, event) {
-      return date >= this.filter.dateFilter.dateFrom
-      && date <= this.filter.dateFilter.dateTo ? event : null;
+    checkDate(date) {
+      return date >= this.filter.dateFilter.dateFrom && date <= this.filter.dateFilter.dateTo;
     },
 
     handlePlate() {
@@ -218,6 +222,7 @@ export default {
 
     async handlePlateFilter(val) {
       this.filter.plateFilter = val;
+      await this.$store.dispatch(FILTER_BY_PLATE, this.filter.plateFilter);
     },
 
     async handleDateFilter() {
@@ -242,6 +247,7 @@ export default {
         date = '';
       }
       this.filter.dateFilter = date;
+      await this.$store.dispatch(FILTER_BY_DATE, this.filter.dateFilter);
     },
 
     async addEvent() {
