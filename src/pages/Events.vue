@@ -272,20 +272,30 @@ export default {
       this.cameraIsIncorrect = false;
     },
 
-    async handlePlateFilter(e) {
-      this.filter.plateFilter = e.target.value;
+    async handlePlateFilter(val) {
+      this.filter.plateFilter = val;
     },
 
     async handleDateFilter() {
       let date;
+      let dateFrom;
+      let dateTo;
       if (this.filter.dateFilter) {
-        const dateFrom = this.filter.dateFilter.from;
-        const dateTo = this.filter.dateFilter.to;
-        const dateFromTimeStamp = convertToTimestamp(dateFrom);
-        const dateToTimeStamp = convertToTimestamp(dateTo) + 24 * 60 * 60;
-        date = { dateFrom: dateFromTimeStamp, dateTo: dateToTimeStamp };
+        if (this.filter.dateFilter.from && this.filter.dateFilter.to) {
+          dateFrom = this.filter.dateFilter.from;
+          dateTo = this.filter.dateFilter.to;
+        } else {
+          dateFrom = this.filter.dateFilter;
+          dateTo = dateFrom;
+        }
+        const dateFromTimeStamp = convertToTimestamp(dateFrom) - 24 * 60 * 60;
+        const dateToTimeStamp = convertToTimestamp(dateTo);
+        date = {
+          dateFrom: dateFromTimeStamp,
+          dateTo: dateToTimeStamp,
+        };
       } else {
-        date = null;
+        date = '';
       }
       this.filter.dateFilter = date;
     },
