@@ -86,13 +86,13 @@
 </template>
 
 <script>
-import { FETCH_CHECKPOINT_EVENTS } from 'src/store/modules/events/actions';
-// import { EVENTS } from 'src/store/modules/events/getters';
 import {
-  FETCH_CHECKPOINT_EVENTS_CHANNEL,
-  FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL,
-} from '../../src-electron/app/utils/invoke.types';
+  FETCH_CHECKPOINT_EVENTS,
+  FETCH_CHECKPOINT_ADD_EVENTS,
+  FETCH_CHECKPOINT_REMOVE_EVENTS,
+} from 'src/store/modules/events/actions';
+
+import { EVENTS, ROWS } from 'src/store/modules/events/getters';
 
 import {
   convertToUnixTimestamp, getTodayUnixTimestamp,
@@ -155,20 +155,14 @@ export default {
     };
   },
   async beforeMount() {
-    const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS_CHANNEL);
-    await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS, eventsData);
-    this.events = eventsData.checkpointEventListForTable;
-    this.pagination.rowsPerPage = eventsData.rows;
+    await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS);
+    this.events = this.$store.getters[EVENTS];
+    this.pagination.rowsPerPage = this.$store.getters[ROWS];
     this.onRequest({
       pagination: this.pagination,
-      filter: { plateFilter: null, dateFilter: null },
+      filter: { plateFilter: '', dateFilter: '' },
     });
   },
-  /* computed: {
-    eventsForTable() {
-      return this.$store.getters[EVENTS];
-    },
-  }, */
   methods: {
     onRequest(props) {
       const {
@@ -292,9 +286,8 @@ export default {
       const dateEvent = await this.checkPlateCameraAndDate();
       if (dateEvent) {
         const event = { plate: this.plate, date: dateEvent, camera: this.camera };
-        await window.invoke(FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL, event);
-        const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS_CHANNEL);
-        this.events = eventsData.checkpointEventListForTable;
+        await this.$store.dispatch(FETCH_CHECKPOINT_ADD_EVENTS, event);
+        this.events = this.$store.getters[EVENTS];
         this.onRequest({
           pagination: this.pagination,
         });
@@ -308,9 +301,8 @@ export default {
     },
 
     async removeEvent(eventIndex) {
-      await window.invoke(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL, eventIndex);
-      const eventsData = await window.invoke(FETCH_CHECKPOINT_EVENTS_CHANNEL);
-      this.events = eventsData.checkpointEventListForTable;
+      await this.$store.dispatch(FETCH_CHECKPOINT_REMOVE_EVENTS, eventIndex);
+      this.events = this.$store.getters[EVENTS];
       this.onRequest({
         pagination: this.pagination,
       });

@@ -1,29 +1,29 @@
 import {
-  FETCH_CHECKPOINT_EVENTS_CHANNEL,
-  FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL,
-  FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL,
+  FETCH_CHECKPOINT_CHANNEL,
+  FETCH_CHECKPOINT_ADD_CHANNEL,
+  FETCH_CHECKPOINT_REMOVE_CHANNEL,
 } from '../utils/invoke.types';
 
 import {
-  fetchCheckpointEvents,
-  fetchCheckpointEventsAddEvent,
-  fetchCheckpointEventsRemoveEvent,
-} from './eventsDatabaseService';
+  fetchCheckpointChannel,
+  fetchCheckpointsAddChannel,
+  fetchCheckpointRemoveChannel,
+} from './fetchDatabaseService';
 
 const { ipcMain } = require('electron');
 
 function initHandlers() {
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_CHANNEL,
-    async () => fetchCheckpointEvents(global.knex));
+  ipcMain.handle(FETCH_CHECKPOINT_CHANNEL,
+    async (event, data) => fetchCheckpointChannel(global.knex, data));
 
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_ADD_EVENT_CHANNEL,
-    async (event, dataEvent) => {
-      await fetchCheckpointEventsAddEvent(global.knex, dataEvent);
+  ipcMain.handle(FETCH_CHECKPOINT_ADD_CHANNEL,
+    async (event, data) => {
+      await fetchCheckpointsAddChannel(global.knex, data);
     });
 
-  ipcMain.handle(FETCH_CHECKPOINT_EVENTS_REMOVE_EVENT_CHANNEL,
-    async (event, eventIndex) => {
-      await fetchCheckpointEventsRemoveEvent(global.knex, eventIndex);
+  ipcMain.handle(FETCH_CHECKPOINT_REMOVE_CHANNEL,
+    async (event, data) => {
+      await fetchCheckpointRemoveChannel(global.knex, data);
     });
 }
 
