@@ -92,11 +92,9 @@ import {
   REMOVE_EVENT, SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
   CURRENT_NUMBER_PAGE, CURRENT_ROWS_PER_PAGE,
 } from 'src/store/modules/events/actions';
-
 import {
   EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE,
 } from 'src/store/modules/events/getters';
-
 import {
   convertToUnixTimestamp, getTodayUnixTimestamp,
   notifyGeneral, convertToTimestamp,
@@ -106,7 +104,6 @@ export const messageEventAddSuccess = 'Event was added successfully';
 export const messageEventRemoveSuccess = 'Event was removed successfully';
 export const messagePlateError = 'Enter plate number';
 export const messageCameraError = 'Enter camera name';
-
 export default {
   name: 'Events',
   data() {
@@ -155,13 +152,15 @@ export default {
       eventsForTable: [],
     };
   },
+  created() {
+    this.filter.plateFilter = this.$store.getters[PLATE];
+    this.filter.dateFilter = this.$store.getters[DATE];
+  },
   async beforeMount() {
     await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS);
     this.events = this.$store.getters[EVENTS];
     this.pagination.rowsPerPage = this.$store.getters[ROWS];
     this.pagination.page = this.$store.getters[NUMBER_PAGE];
-    this.filter.plateFilter = this.$store.getters[PLATE];
-    this.filter.dateFilter = this.$store.getters[DATE];
     this.onRequest({
       pagination: this.pagination,
     });
@@ -189,7 +188,6 @@ export default {
         this.loading = false;
       }
     },
-
     fetchFromServerEventsData() {
       let data = this.events;
       if (this.filter.plateFilter) {
@@ -205,28 +203,22 @@ export default {
       }
       return data;
     },
-
     checkPlate(plate, carNumber) {
       return plate.toUpperCase().match(carNumber.toUpperCase());
     },
-
     checkDate(date) {
       return date >= this.filter.dateFilter.dateFrom && date <= this.filter.dateFilter.dateTo;
     },
-
     handlePlate() {
       this.plateIsIncorrect = false;
     },
-
     handleCamera() {
       this.cameraIsIncorrect = false;
     },
-
     async handlePlateFilter(val) {
       this.filter.plateFilter = val;
       await this.$store.dispatch(SAVE_FILTER_BY_PLATE, this.filter.plateFilter);
     },
-
     async handleDateFilter() {
       let date;
       let dateFrom;
@@ -251,7 +243,6 @@ export default {
       this.filter.dateFilter = date;
       await this.$store.dispatch(SAVE_FILTER_BY_DATE, this.filter.dateFilter);
     },
-
     async addEvent() {
       if (this.checkPlateAndCamera()) {
         const dateEvent = await this.setDate();
@@ -270,7 +261,6 @@ export default {
       }
       return false;
     },
-
     async removeEvent(eventIndex) {
       await this.$store.dispatch(REMOVE_EVENT, eventIndex);
       this.events = this.$store.getters[EVENTS];
@@ -279,7 +269,6 @@ export default {
       });
       await this.notifyEventRemoveSuccess();
     },
-
     checkPlateAndCamera() {
       if (!this.plate) {
         this.plateIsIncorrect = true;
@@ -293,7 +282,6 @@ export default {
       }
       return true;
     },
-
     setDate() {
       let dateEvent;
       if (!this.date || !this.time) {
@@ -304,26 +292,21 @@ export default {
       }
       return dateEvent;
     },
-
     resetData() {
       this.plate = '';
       this.camera = '';
       this.date = '';
       this.time = '';
     },
-
     async notifyEventAddSuccess() {
       await notifyGeneral(messageEventAddSuccess, 'green', this.$q);
     },
-
     async notifyEventRemoveSuccess() {
       await notifyGeneral(messageEventRemoveSuccess, 'grey', this.$q);
     },
-
     async notifyPlateError() {
       await notifyGeneral(messagePlateError, 'red', this.$q);
     },
-
     async notifyCameraError() {
       await notifyGeneral(messageCameraError, 'red', this.$q);
     },
