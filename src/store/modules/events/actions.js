@@ -16,8 +16,8 @@ const EVENTS_TABLE = 'events';
 export const FETCH_CHECKPOINT_EVENTS = 'events/fetchCheckpointEvents';
 export const ADD_EVENT = 'events/addEvent';
 export const REMOVE_EVENT = 'events/removeEvent';
-export const FILTER_BY_PLATE = 'events/filterByPlate';
-export const FILTER_BY_DATE = 'events/filterByDate';
+export const SAVE_FILTER_BY_PLATE = 'events/saveFilterByPlate';
+export const SAVE_FILTER_BY_DATE = 'events/saveFilterByDate';
 export const CURRENT_NUMBER_PAGE = 'events/currentNumberPage';
 export const CURRENT_ROWS_PER_PAGE = 'events/rowsPerPage';
 
@@ -38,10 +38,10 @@ export const actions = {
     const events = await window.invoke(FETCH_CHECKPOINT_CHANNEL, EVENTS_TABLE);
     context.commit(SET_EVENTS, events);
   },
-  [FILTER_BY_PLATE]: async (context, plate) => {
+  [SAVE_FILTER_BY_PLATE]: async (context, plate) => {
     context.commit(SET_FILTER_PLATE, plate);
   },
-  [FILTER_BY_DATE]: async (context, date) => {
+  [SAVE_FILTER_BY_DATE]: async (context, date) => {
     context.commit(SET_FILTER_DATE, date);
   },
   [CURRENT_NUMBER_PAGE]: async (context, page) => {

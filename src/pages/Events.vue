@@ -89,7 +89,8 @@
 import {
   FETCH_CHECKPOINT_EVENTS,
   ADD_EVENT,
-  REMOVE_EVENT, FILTER_BY_PLATE, FILTER_BY_DATE, CURRENT_NUMBER_PAGE, CURRENT_ROWS_PER_PAGE,
+  REMOVE_EVENT, SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
+  CURRENT_NUMBER_PAGE, CURRENT_ROWS_PER_PAGE,
 } from 'src/store/modules/events/actions';
 
 import {
@@ -223,7 +224,7 @@ export default {
 
     async handlePlateFilter(val) {
       this.filter.plateFilter = val;
-      await this.$store.dispatch(FILTER_BY_PLATE, this.filter.plateFilter);
+      await this.$store.dispatch(SAVE_FILTER_BY_PLATE, this.filter.plateFilter);
     },
 
     async handleDateFilter() {
@@ -248,7 +249,7 @@ export default {
         date = '';
       }
       this.filter.dateFilter = date;
-      await this.$store.dispatch(FILTER_BY_DATE, this.filter.dateFilter);
+      await this.$store.dispatch(SAVE_FILTER_BY_DATE, this.filter.dateFilter);
     },
 
     async addEvent() {
