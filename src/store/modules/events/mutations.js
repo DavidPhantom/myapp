@@ -3,6 +3,7 @@ export const SET_FILTER_PLATE = 'SET_FILTER_PLATE';
 export const SET_FILTER_DATE = 'SET_FILTER_DATE';
 export const SET_NUMBER_PAGE = 'SET_NUMBER_PAGE';
 export const SET_ROWS_PER_PAGE = 'SET_ROWS_PER_PAGE';
+export const SET_ROWS_NUMBER = 'SET_ROWS_NUMBER';
 
 export const mutations = {
   [SET_EVENTS]: (state, events) => {
@@ -19,5 +20,8 @@ export const mutations = {
   },
   [SET_ROWS_PER_PAGE]: (state, rowsPerPage) => {
     state.rows = rowsPerPage;
+  },
+  [SET_ROWS_NUMBER]: (state, rowsNumber) => {
+    state.rowsNumber = rowsNumber;
   },
 };

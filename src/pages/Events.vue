@@ -61,7 +61,7 @@
     </q-card-section>
     <q-table
       title="Events"
-      :data="eventsForTable"
+      :data="events"
       :columns="columns"
       row-key="name"
       :pagination.sync="pagination"
@@ -87,13 +87,13 @@
 
 <script>
 import {
-  FETCH_CHECKPOINT_EVENTS,
-  ADD_EVENT,
-  REMOVE_EVENT, SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
-  CURRENT_NUMBER_PAGE, CURRENT_ROWS_PER_PAGE,
+  FETCH_CHECKPOINT_EVENTS_COUNT,
+  ADD_EVENT, REMOVE_EVENT,
+  SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
+  FETCH_CHECKPOINT_EVENTS_BY_PAGE,
 } from 'src/store/modules/events/actions';
 import {
-  EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE,
+  EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE, ROWS_NUMBER,
 } from 'src/store/modules/events/getters';
 import {
   convertToUnixTimestamp, getTodayUnixTimestamp,
@@ -149,7 +149,6 @@ export default {
         },
       ],
       events: [],
-      eventsForTable: [],
     };
   },
   created() {
@@ -157,57 +156,40 @@ export default {
     this.filter.dateFilter = this.$store.getters[DATE];
   },
   async beforeMount() {
-    await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS);
-    this.events = this.$store.getters[EVENTS];
     this.pagination.rowsPerPage = this.$store.getters[ROWS];
     this.pagination.page = this.$store.getters[NUMBER_PAGE];
-    this.onRequest({
+    await this.onRequest({
       pagination: this.pagination,
     });
   },
   methods: {
-    onRequest(props) {
+    async onRequest(props) {
       const {
         page, rowsPerPage,
       } = props.pagination;
       this.loading = true;
       try {
-        let returnedData = this.fetchFromServerEventsData();
-        this.pagination.rowsNumber = returnedData.length;
-        const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage;
-        const startRow = (page - 1) * rowsPerPage;
-        returnedData = returnedData.slice(startRow, startRow + fetchCount);
-        this.eventsForTable.splice(0, this.eventsForTable.length, ...returnedData);
-        this.pagination.page = page;
-        this.pagination.rowsPerPage = rowsPerPage;
+        const dataForEventsCount = {
+          plateFilter: this.filter.plateFilter,
+          dateFilter: this.filter.dateFilter,
+        };
+        await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS_COUNT, dataForEventsCount);
+        this.pagination.rowsNumber = this.$store.getters[ROWS_NUMBER];
+        const dataForEventsByPage = {
+          pageNumber: page - 1,
+          eventsPerPage: rowsPerPage,
+          plateFilter: this.filter.plateFilter,
+          dateFilter: this.filter.dateFilter,
+        };
+        await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS_BY_PAGE, dataForEventsByPage);
       } catch (e) {
         console.error(e);
       } finally {
-        this.$store.dispatch(CURRENT_NUMBER_PAGE, page);
-        this.$store.dispatch(CURRENT_ROWS_PER_PAGE, rowsPerPage);
+        this.events = await this.$store.getters[EVENTS];
+        this.pagination.page = page;
+        this.pagination.rowsPerPage = rowsPerPage;
         this.loading = false;
       }
-    },
-    fetchFromServerEventsData() {
-      let data = this.events;
-      if (this.filter.plateFilter) {
-        const carNumber = this.filter.plateFilter.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-        data = data.filter((event) => this.checkPlate(event.plate, carNumber));
-      }
-      if (this.filter.dateFilter) {
-        let date;
-        data = data.filter((event) => {
-          date = convertToTimestamp(event.date);
-          return this.checkDate(date, event);
-        });
-      }
-      return data;
-    },
-    checkPlate(plate, carNumber) {
-      return plate.toUpperCase().match(carNumber.toUpperCase());
-    },
-    checkDate(date) {
-      return date >= this.filter.dateFilter.dateFrom && date <= this.filter.dateFilter.dateTo;
     },
     handlePlate() {
       this.plateIsIncorrect = false;
@@ -249,8 +231,7 @@ export default {
         if (dateEvent) {
           const event = { plate: this.plate, date: dateEvent, camera: this.camera };
           await this.$store.dispatch(ADD_EVENT, event);
-          this.events = this.$store.getters[EVENTS];
-          this.onRequest({
+          await this.onRequest({
             pagination: this.pagination,
           });
           await this.resetData();
@@ -263,8 +244,7 @@ export default {
     },
     async removeEvent(eventIndex) {
       await this.$store.dispatch(REMOVE_EVENT, eventIndex);
-      this.events = this.$store.getters[EVENTS];
-      this.onRequest({
+      await this.onRequest({
         pagination: this.pagination,
       });
       await this.notifyEventRemoveSuccess();

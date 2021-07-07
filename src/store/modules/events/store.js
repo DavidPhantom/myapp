@@ -8,6 +8,7 @@ export const getInitialState = () => ({
   plateFilter: '',
   dateFilter: '',
   page: 1,
+  rowsNumber: 0,
 });
 
 const state = {
