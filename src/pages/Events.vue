@@ -87,7 +87,6 @@
 
 <script>
 import {
-  FETCH_CHECKPOINT_EVENTS_COUNT,
   ADD_EVENT, REMOVE_EVENT,
   SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
   FETCH_CHECKPOINT_EVENTS_BY_PAGE,
@@ -169,12 +168,6 @@ export default {
       } = props.pagination;
       this.loading = true;
       try {
-        const dataForEventsCount = {
-          plateFilter: this.filter.plateFilter,
-          dateFilter: this.filter.dateFilter,
-        };
-        await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS_COUNT, dataForEventsCount);
-        this.pagination.rowsNumber = this.$store.getters[ROWS_NUMBER];
         const dataForEventsByPage = {
           pageNumber: page - 1,
           eventsPerPage: rowsPerPage,
@@ -185,6 +178,7 @@ export default {
       } catch (e) {
         console.error(e);
       } finally {
+        this.pagination.rowsNumber = this.$store.getters[ROWS_NUMBER];
         this.events = await this.$store.getters[EVENTS];
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
