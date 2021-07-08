@@ -65,6 +65,7 @@
       :columns="columns"
       row-key="name"
       :pagination.sync="pagination"
+      hide-pagination
       :loading="loading"
       :filter="filter"
       @request="onRequest"
@@ -82,6 +83,14 @@
         </q-td>
       </template>
     </q-table>
+    <div class="q-pa-lg flex flex-center">
+      <q-pagination
+        v-model="pagination.page"
+        :max="pagesNumber"
+        direction-links
+        @input="handlePage"
+      />
+    </div>
   </div>
 </template>
 
@@ -122,6 +131,7 @@ export default {
       time: '',
       plateIsIncorrect: false,
       cameraIsIncorrect: false,
+      pagesNumber: 0,
       columns: [
         {
           name: 'id',
@@ -179,6 +189,7 @@ export default {
         console.error(e);
       } finally {
         this.pagination.rowsNumber = this.$store.getters[ROWS_NUMBER];
+        this.pagesNumber = Math.ceil(this.pagination.rowsNumber / this.pagination.rowsPerPage);
         this.events = await this.$store.getters[EVENTS];
         this.pagination.page = page;
         this.pagination.rowsPerPage = rowsPerPage;
@@ -187,6 +198,11 @@ export default {
     },
     handlePlate() {
       this.plateIsIncorrect = false;
+    },
+    async handlePage() {
+      await this.onRequest({
+        pagination: this.pagination,
+      });
     },
     handleCamera() {
       this.cameraIsIncorrect = false;
