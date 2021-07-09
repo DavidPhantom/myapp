@@ -4,7 +4,11 @@
       <q-header elevated class="bg-black">
         <q-toolbar>
           <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
-          <q-toolbar-title>Header</q-toolbar-title>
+          <q-toolbar-title>My app</q-toolbar-title>
+          <q-bar class="q-electron-drag">
+            <q-btn dense flat icon="minimize" @click="minimize" />
+            <q-btn dense flat icon="close" @click="close" />
+          </q-bar>
         </q-toolbar>
       </q-header>
       <q-drawer
@@ -66,6 +70,16 @@ export default {
     goTo(e) {
       const { route } = e.target.dataset;
       this.$router.push(route);
+    },
+    minimize() {
+      if (process.env.MODE === 'electron') {
+        window.invoke('minimize-window', '');
+      }
+    },
+    close() {
+      if (process.env.MODE === 'electron') {
+        window.invoke('close-window', '');
+      }
     },
   },
 };

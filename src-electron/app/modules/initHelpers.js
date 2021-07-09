@@ -24,6 +24,13 @@ function initHandlers() {
 
   ipcMain.handle(FETCH_CHECKPOINT_BY_PAGE_CHANNEL,
     async (event, data) => fetchCheckpointRowsByPage(global.knex, data));
+
+  ipcMain.handle('close-window', () => {
+    global.mainWindow.destroy();
+  });
+  ipcMain.handle('minimize-window', () => {
+    global.mainWindow.minimize();
+  });
 }
 
 export {
