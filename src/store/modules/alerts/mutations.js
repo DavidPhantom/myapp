@@ -1,17 +1,23 @@
-export const ADD_NEW_ALERT_MUTATION = 'ADD_NEW_ALERT_MUTATION';
-export const UNSET_ALERT = 'UNSET_ALERT';
+export const SET_ALERTS = 'SET_ALERTS';
+export const SET_NUMBER_PAGE = 'SET_NUMBER_PAGE';
+export const SET_ROWS_PER_PAGE = 'SET_ROWS_PER_PAGE';
+export const SET_ROWS_NUMBER = 'SET_ROWS_NUMBER';
+export const SET_FILTER_EMAIL = 'SET_FILTER_EMAIL';
 
 export const mutations = {
-  [ADD_NEW_ALERT_MUTATION]: (state, address) => {
-    state.alerts.push({
-      id: state.alerts.length,
-      type: 'E-mail',
-      address,
-    });
+  [SET_ALERTS]: (state, alerts) => {
+    state.alerts = alerts;
   },
-  [UNSET_ALERT]: (state, alertIdx) => {
-    state.alerts = [
-      ...state.alerts.filter((row, idx) => idx !== alertIdx),
-    ];
+  [SET_NUMBER_PAGE]: (state, page) => {
+    state.page = page;
+  },
+  [SET_ROWS_PER_PAGE]: (state, rowsPerPage) => {
+    state.rows = rowsPerPage;
+  },
+  [SET_ROWS_NUMBER]: (state, rowsNumber) => {
+    state.rowsNumber = rowsNumber;
+  },
+  [SET_FILTER_EMAIL]: (state, email) => {
+    state.emailFilter = email;
   },
 };

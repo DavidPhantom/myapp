@@ -19,8 +19,8 @@ export function generateDayMonthAndYearFromJSTimestamp(jsTimestamp) {
 }
 
 export function generateYearMonthAndDateFromJSTimestamp(jsTimestamp) {
-  const date = new Date(jsTimestamp);
-  return `${pad(date.getFullYear())}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`;
+  const date = new Date(jsTimestamp * 1000);
+  return `${pad(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 export function generateHoursMinutesAndSecondsFromJSTimestamp(jsTimestamp) {

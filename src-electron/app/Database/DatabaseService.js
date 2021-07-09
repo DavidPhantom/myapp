@@ -21,6 +21,13 @@ class DatabaseService {
         table.string('camera').notNullable();
       });
     }
+    if (!await this.knex.schema.hasTable('alerts')) {
+      await this.knex.schema.createTable('alerts', (table) => {
+        table.increments('id');
+        table.string('type').notNullable();
+        table.string('address').notNullable();
+      });
+    }
   }
 
   static getDatabase(appDataDir) {

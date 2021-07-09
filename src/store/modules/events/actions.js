@@ -26,10 +26,15 @@ export const actions = {
       tableName: EVENTS_TABLE,
       page: dataForEventsByPage.pageNumber,
       rowsPerPage: dataForEventsByPage.eventsPerPage,
-      plateFilter: dataForEventsByPage.plateFilter,
+      maskFilter: { column: 'plate', mask: dataForEventsByPage.plateFilter },
       dateFilter: dataForEventsByPage.dateFilter,
     };
     const events = await window.invoke(FETCH_CHECKPOINT_BY_PAGE_CHANNEL, data);
+    events.tableByPage = events.tableByPage.map((el, key) => ({
+      ...el,
+      num: (dataForEventsByPage.eventsPerPage * dataForEventsByPage.pageNumber + 1) + key,
+    }));
+
     context.commit(SET_ROWS_NUMBER, events.rowsCount);
     context.commit(SET_EVENTS, events.tableByPage);
     context.commit(SET_NUMBER_PAGE, dataForEventsByPage.pageNumber + 1);
