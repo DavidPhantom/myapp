@@ -13,38 +13,55 @@
       @request="onRequest"
     >
       <template v-slot:top-right>
-        <q-input borderless dense debounce="300" v-model="filter.plateFilter" placeholder="Search"
-                 @input="handlePlateFilter">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-        <div class="col-7">
-          <q-input dense readonly outlined v-model="filterDateToInputValue">
-            <template v-slot:append>
-              <q-icon
-                name="close"
-                @click="clearDateFilter"
-                class="cursor-pointer"
-              />
-            </template>
-            <template v-slot:prepend>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy
-                  ref="qDateProxy"
-                  transition-show="scale"
-                  transition-hide="scale"
-                >
-                  <q-date range v-model="filter.dateFilter"
-                          mask="YYYY-MM-DD" @input="handleDateFilter">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
+        <q-checkbox
+          left-label
+          v-model="filter.enableAllowList"
+          label="Show only allowed numbers"
+          @input="handleAllowList"
+        />
+      </template>
+      <template v-slot:top-left>
+        <div>
+          <div class="row justify-between" style="">
+            <div class="col-5">
+              <q-input class="q-mr-md"
+                       outlined
+                       dense
+                       debounce="300" v-model="filter.plateFilter" placeholder="Search"
+                       @input="handlePlateFilter" style="margin-right: 5%">
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-7">
+              <q-input dense readonly outlined v-model="filterDateToInputValue">
+                <template v-slot:append>
+                  <q-icon
+                    name="close"
+                    @click="clearDateFilter"
+                    class="cursor-pointer"
+                  />
+                </template>
+                <template v-slot:prepend>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      ref="qDateProxy"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date range v-model="filter.dateFilter"
+                              mask="YYYY-MM-DD" @input="handleDateFilter">
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Close" color="primary" flat />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
+          </div>
         </div>
       </template>
       <template v-slot:body-cell-action="props">
@@ -68,9 +85,10 @@ import {
   REMOVE_EVENT,
   SAVE_FILTER_BY_PLATE, SAVE_FILTER_BY_DATE,
   FETCH_CHECKPOINT_EVENTS_BY_PAGE,
+  SAVE_FILTER_BY_ALLOW_LIST,
 } from 'src/store/modules/events/actions';
 import {
-  EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE, ROWS_NUMBER,
+  EVENTS, PLATE, ROWS, DATE, NUMBER_PAGE, ROWS_NUMBER, ENABLE_ALLOW_LIST,
 } from 'src/store/modules/events/getters';
 
 import EventAdd from 'components/Events/EventAdd';
@@ -89,7 +107,7 @@ export default {
   components: { EventAdd },
   data() {
     return {
-      filter: { plateFilter: '', dateFilter: '' },
+      filter: { plateFilter: '', dateFilter: '', enableAllowList: false },
       filterDateToInputValue: '-',
       loading: false,
       pagination: {
@@ -120,6 +138,7 @@ export default {
   },
   created() {
     this.filter.plateFilter = this.$store.getters[PLATE];
+    this.filter.enableAllowList = this.$store.getters[ENABLE_ALLOW_LIST];
     this.filter.dateFilter = this.$store.getters[DATE];
     if (this.filter.dateFilter) {
       const dateFrom = generateYearMonthAndDateFromJSTimestamp(this.filter.dateFilter.dateFrom);
@@ -146,6 +165,7 @@ export default {
           eventsPerPage: rowsPerPage,
           plateFilter: this.filter.plateFilter,
           dateFilter: this.filter.dateFilter,
+          enableAllowList: this.filter.enableAllowList,
         };
         await this.$store.dispatch(FETCH_CHECKPOINT_EVENTS_BY_PAGE, dataForEventsByPage);
       } catch (e) {
@@ -158,10 +178,9 @@ export default {
         this.loading = false;
       }
     },
-    async handlePage() {
-      await this.onRequest({
-        pagination: this.pagination,
-      });
+    async handleAllowList(val) {
+      this.filter.enableAllowList = val;
+      await this.$store.dispatch(SAVE_FILTER_BY_ALLOW_LIST, this.filter.enableAllowList);
     },
     async handlePlateFilter(val) {
       this.filter.plateFilter = val;

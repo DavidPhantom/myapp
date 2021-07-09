@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 
 import alerts from './modules/alerts/store';
 import events from './modules/events/store';
+import allowList from './modules/allowList/store';
 
 Vue.use(Vuex);
 
@@ -20,6 +21,7 @@ export default function (/* { ssrContext } */) {
     modules: {
       alerts,
       events,
+      allowList,
     },
 
     // enable strict mode (adds overhead!)

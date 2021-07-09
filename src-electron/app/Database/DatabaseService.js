@@ -28,6 +28,12 @@ class DatabaseService {
         table.string('address').notNullable();
       });
     }
+    if (!await this.knex.schema.hasTable('allowList')) {
+      await this.knex.schema.createTable('allowList', (table) => {
+        table.increments('id');
+        table.string('plate').notNullable();
+      });
+    }
   }
 
   static getDatabase(appDataDir) {

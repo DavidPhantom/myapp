@@ -4,6 +4,7 @@ export const PLATE = 'events/getPlate';
 export const DATE = 'events/getDate';
 export const NUMBER_PAGE = 'events/getNumberPage';
 export const ROWS_NUMBER = 'events/getRowsNumber';
+export const ENABLE_ALLOW_LIST = 'events/getEnableAllowList';
 
 export const getters = {
   [EVENTS]: (state) => state.events,
@@ -12,4 +13,5 @@ export const getters = {
   [DATE]: (state) => state.dateFilter,
   [NUMBER_PAGE]: (state) => state.page,
   [ROWS_NUMBER]: (state) => state.rowsNumber,
+  [ENABLE_ALLOW_LIST]: (state) => state.enableAllowList,
 };

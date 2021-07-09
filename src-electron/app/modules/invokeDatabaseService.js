@@ -2,7 +2,7 @@ import {
   setDate,
 } from '../utils/helper';
 
-function filterByPlateAndDate({ maskFilter, dateFilter, tableName }, dataForTable) {
+function filterByMaskDateAllowList({ maskFilter, dateFilter, tableName, enableAllowList }, dataForTable) {
   if (maskFilter.mask) {
     const mask = maskFilter.mask.replace(/\*/g, '%');
     dataForTable = dataForTable.where(`${tableName}.${maskFilter.column}`, 'like', `%${mask}%`);
@@ -11,21 +11,30 @@ function filterByPlateAndDate({ maskFilter, dateFilter, tableName }, dataForTabl
     const { dateFrom, dateTo } = dateFilter;
     dataForTable = dataForTable.whereBetween(`${tableName}.date`, [dateFrom, dateTo]);
   }
+  if (enableAllowList) {
+    dataForTable = dataForTable.select({
+      id: `${tableName}.id`,
+      plate: `${tableName}.plate`,
+      date: `${tableName}.date`,
+      camera: `${tableName}.camera`,
+    }).join('allowList', `${tableName}.plate`, '=', 'allowList.plate');
+  }
   return dataForTable;
 }
 
 async function fetchCheckpointRowsByPage(knex,
   {
     tableName, rowsPerPage, page, maskFilter = { column: '', mask: '' }, dateFilter = '',
+    enableAllowList = false,
   }) {
   let dataRowsCount = knex(tableName);
   let dataTableRowsByPage = knex(tableName)
     .orderBy('id', 'desc');
-  dataRowsCount = filterByPlateAndDate({
-    maskFilter, dateFilter, tableName,
+  dataRowsCount = filterByMaskDateAllowList({
+    maskFilter, dateFilter, tableName, enableAllowList,
   }, dataRowsCount);
-  dataTableRowsByPage = filterByPlateAndDate({
-    maskFilter, dateFilter, tableName,
+  dataTableRowsByPage = filterByMaskDateAllowList({
+    maskFilter, dateFilter, tableName, enableAllowList,
   }, dataTableRowsByPage);
   await dataTableRowsByPage.limit(rowsPerPage)
     .offset(page * rowsPerPage)

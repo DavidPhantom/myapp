@@ -58,6 +58,11 @@ const linksList = [
     route: '/alerts',
     id: 2,
   },
+  {
+    title: 'AllowList',
+    route: '/allowList',
+    id: 3,
+  },
 ];
 export default {
   data() {

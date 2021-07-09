@@ -10,6 +10,7 @@ import {
   SET_NUMBER_PAGE,
   SET_ROWS_PER_PAGE,
   SET_ROWS_NUMBER,
+  SET_FILTER_BY_ALLOW_LIST,
 } from './mutations';
 
 const EVENTS_TABLE = 'events';
@@ -19,6 +20,7 @@ export const ADD_EVENT = 'events/addEvent';
 export const REMOVE_EVENT = 'events/removeEvent';
 export const SAVE_FILTER_BY_PLATE = 'events/saveFilterByPlate';
 export const SAVE_FILTER_BY_DATE = 'events/saveFilterByDate';
+export const SAVE_FILTER_BY_ALLOW_LIST = 'events/saveFilterByAllowList';
 
 export const actions = {
   [FETCH_CHECKPOINT_EVENTS_BY_PAGE]: async (context, dataForEventsByPage) => {
@@ -28,6 +30,7 @@ export const actions = {
       rowsPerPage: dataForEventsByPage.eventsPerPage,
       maskFilter: { column: 'plate', mask: dataForEventsByPage.plateFilter },
       dateFilter: dataForEventsByPage.dateFilter,
+      enableAllowList: dataForEventsByPage.enableAllowList,
     };
     const events = await window.invoke(FETCH_CHECKPOINT_BY_PAGE_CHANNEL, data);
     events.tableByPage = events.tableByPage.map((el, key) => ({
@@ -53,5 +56,8 @@ export const actions = {
   },
   [SAVE_FILTER_BY_DATE]: async (context, date) => {
     context.commit(SET_FILTER_DATE, date);
+  },
+  [SAVE_FILTER_BY_ALLOW_LIST]: async (context, enableAllowList) => {
+    context.commit(SET_FILTER_BY_ALLOW_LIST, enableAllowList);
   },
 };

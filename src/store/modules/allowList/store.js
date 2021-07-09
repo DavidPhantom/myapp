@@ -3,13 +3,11 @@ import { mutations } from './mutations';
 import { actions } from './actions';
 
 export const getInitialState = () => ({
-  events: [],
+  allowList: [],
   rows: 5,
-  plateFilter: '',
-  dateFilter: '',
   page: 1,
   rowsNumber: 0,
-  enableAllowList: false,
+  allowListFilter: '',
 });
 
 const state = {
