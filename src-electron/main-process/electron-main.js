@@ -38,7 +38,6 @@ function createWindow() {
     useContentSize: true,
     frame: false,
     webPreferences: {
-      icon: path.join(__dirname, '../icons/icon.png'),
       // Change from /quasar.conf.js > electron > nodeIntegration;
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: process.env.QUASAR_NODE_INTEGRATION,
@@ -48,7 +47,7 @@ function createWindow() {
       // preload: path.resolve(__dirname, 'electron-electron-preload.js')
     },
   });
-  console.log(path.join(__dirname, '../icons/icon.png'));
+  mainWindow.setIcon(path.join(__dirname, '../icons/icon.png'));
   global.mainWindow = mainWindow;
 
   mainWindow.loadURL(process.env.APP_URL);
