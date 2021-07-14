@@ -13,12 +13,17 @@
       @request="onRequest"
     >
       <template v-slot:top-right>
-        <q-input borderless dense debounce="300" v-model="filter.email" placeholder="Search"
-                 @input="handleEmailFilter">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+        <div class="col-5">
+          <q-input class="q-mr-md"
+                   outlined
+                   dense
+                   debounce="300" v-model="filter.email" placeholder="Search"
+                   @input="handleEmailFilter" style="margin-right: 5%">
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
       </template>
 
       <template v-slot:body-cell-action="props">
