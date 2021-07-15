@@ -2,7 +2,9 @@ import {
   setDate,
 } from '../utils/helper';
 
-function filterByMaskDateAllowList({ maskFilter, dateFilter, tableName, enableAllowList }, dataForTable) {
+function filterByMaskDateAllowList({
+  maskFilter, dateFilter, tableName, enableAllowList,
+}, dataForTable) {
   if (maskFilter.mask) {
     const mask = maskFilter.mask.replace(/\*/g, '%');
     dataForTable = dataForTable.where(`${tableName}.${maskFilter.column}`, 'like', `%${mask}%`);

@@ -28,9 +28,30 @@
               :data-route="link.route"
               @click="goTo"
             >
-              {{ link.title }}
+              {{ $t(link.title) }}
             </button>
           </div>
+          <q-btn-dropdown
+            unelevated no-caps
+            :label="$t('language')"
+            class="q-mb-sm q-mt-sm"
+            color="secondary"
+            dropdown-icon="keyboard_arrow_down"
+          >
+            <q-list>
+              <q-item clickable v-close-popup @click="changeLanguage">
+                <q-item-section>
+                  <q-item-label>En</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable v-close-popup @click="changeLanguage">
+                <q-item-section>
+                  <q-item-label>Ru</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </q-scroll-area>
       </q-drawer>
 
@@ -44,22 +65,22 @@
 <script>
 const linksList = [
   {
-    title: 'Home',
+    title: 'home',
     route: '/',
     id: 0,
   },
   {
-    title: 'Events',
+    title: 'events',
     route: '/events',
     id: 1,
   },
   {
-    title: 'Alerts',
+    title: 'alerts',
     route: '/alerts',
     id: 2,
   },
   {
-    title: 'AllowList',
+    title: 'allowList',
     route: '/allowList',
     id: 3,
   },
@@ -85,6 +106,11 @@ export default {
       if (process.env.MODE === 'electron') {
         window.invoke('close-window', '');
       }
+    },
+    changeLanguage(e) {
+      const lang = e.target.textContent.toLowerCase();
+      localStorage.setItem('language', lang);
+      this.$i18n.locale = lang;
     },
   },
 };

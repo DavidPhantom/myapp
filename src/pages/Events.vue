@@ -1,9 +1,8 @@
 <template>
   <div class="q-pa-md">
-    <q-btn label="Add event" color="primary" @click="addEventModalWindowIsOpened" />
     <EventAdd ref="eventAdd" @addEventSuccessfully='updateTableEvents' />
+    <div class="title">{{$t('events')}}</div>
     <q-table
-      title="Events"
       :data="events"
       :columns="columns"
       row-key="id"
@@ -16,7 +15,7 @@
         <q-checkbox
           left-label
           v-model="filter.enableAllowList"
-          label="Show only allowed numbers"
+          :label="$t('showOnlyAllowedNumbers')"
           @input="handleAllowList"
         />
       </template>
@@ -27,7 +26,8 @@
               <q-input class="q-mr-md"
                        outlined
                        dense
-                       debounce="300" v-model="filter.plateFilter" placeholder="Search"
+                       debounce="300" v-model="filter.plateFilter"
+                       :placeholder="$t('findPlateByMask')"
                        @input="handlePlateFilter" style="margin-right: 5%">
                 <template v-slot:append>
                   <q-icon name="search" />
@@ -53,7 +53,9 @@
                       <q-date range v-model="filter.dateFilter"
                               mask="YYYY-MM-DD" @input="handleDateFilter">
                         <div class="row items-center justify-end">
-                          <q-btn v-close-popup label="Close" color="primary" flat />
+                          <q-btn
+                            v-close-popup unelevated no-caps
+                            :label="$t('close')" color="primary" flat />
                         </div>
                       </q-date>
                     </q-popup-proxy>
@@ -77,6 +79,15 @@
         </q-td>
       </template>
     </q-table>
+    <div class="row justify-end">
+    <q-btn
+      class="q-mt-md"
+      unelevated no-caps
+      :label="$t('addEvent')"
+      color="primary"
+      icon="add"
+      @click="addEventModalWindowIsOpened" />
+    </div>
   </div>
 </template>
 
@@ -121,16 +132,16 @@ export default {
           name: 'num', required: true, label: '№', align: 'left', field: 'num',
         },
         {
-          name: 'plate', align: 'center', label: 'Plate', field: 'plate',
+          name: 'plate', align: 'center', label: this.$t('plateNumber'), field: 'plate',
         },
         {
-          name: 'date', align: 'center', label: 'Date', field: 'date',
+          name: 'date', align: 'center', label: this.$t('date'), field: 'date',
         },
         {
-          name: 'camera', align: 'center', label: 'Camera', field: 'camera',
+          name: 'camera', align: 'center', label: this.$t('cameraName'), field: 'camera',
         },
         {
-          name: 'action', label: 'Remove', align: 'center', field: 'action',
+          name: 'action', label: this.$t('deletePlate'), align: 'center', field: 'action',
         },
       ],
       events: [],
