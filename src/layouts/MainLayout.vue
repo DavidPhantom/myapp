@@ -7,6 +7,8 @@
           <q-toolbar-title>My app</q-toolbar-title>
           <q-bar class="q-electron-drag">
             <q-btn dense flat icon="minimize" @click="minimize" />
+            <q-btn dense flat icon="crop_square" @click="setFullscreen" v-if="!fullscreen"/>
+            <q-btn dense flat icon="filter_none" @click="unsetFullscreen" v-else />
             <q-btn dense flat icon="close" @click="close" />
           </q-bar>
         </q-toolbar>
@@ -34,7 +36,7 @@
           <q-btn-dropdown
             unelevated no-caps
             :label="$t('language')"
-            class="q-mb-sm q-mt-sm"
+            class="q-my-sm q-ml-sm"
             color="secondary"
             dropdown-icon="keyboard_arrow_down"
           >
@@ -90,6 +92,7 @@ export default {
     return {
       drawer: false,
       linksList,
+      fullscreen: false,
     };
   },
   methods: {
@@ -99,12 +102,24 @@ export default {
     },
     minimize() {
       if (process.env.MODE === 'electron') {
-        window.invoke('minimize-window', '');
+        window.invoke('minimize-window');
       }
     },
     close() {
       if (process.env.MODE === 'electron') {
-        window.invoke('close-window', '');
+        window.invoke('close-window');
+      }
+    },
+    async setFullscreen() {
+      if (process.env.MODE === 'electron') {
+        await window.invoke('maximize-window');
+        this.fullscreen = true;
+      }
+    },
+    async unsetFullscreen() {
+      if (process.env.MODE === 'electron') {
+        this.fullscreen = window.invoke('unmaximize-window');
+        this.fullscreen = false;
       }
     },
     changeLanguage(e) {

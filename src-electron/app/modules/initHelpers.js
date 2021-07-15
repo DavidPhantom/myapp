@@ -31,6 +31,12 @@ function initHandlers() {
   ipcMain.handle('minimize-window', () => {
     global.mainWindow.minimize();
   });
+  ipcMain.handle('maximize-window', () => {
+    global.mainWindow.maximize();
+  });
+  ipcMain.handle('unmaximize-window', () => {
+    global.mainWindow.unmaximize();
+  });
 }
 
 export {
