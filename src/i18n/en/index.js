@@ -8,6 +8,7 @@ export default {
   close: 'Close',
   save: 'Save',
   cancel: 'Cancel',
+  search: 'Search',
   // Left panel
   home: 'Home',
   events: 'Events',
@@ -21,4 +22,12 @@ export default {
   deletePlate: 'Delete plate',
   showOnlyAllowedNumbers: 'Show only allowed numbers',
   findPlateByMask: 'Find plate by mask',
+  // Alerts
+  addAlert: 'Add alert',
+  deleteAlert: 'Delete alert',
+  notificationType: 'Notification type',
+  notificationAddress: 'Notification address',
+  // AllowList
+  addCarNumber: 'Add car number',
+  deleteCarNumber: 'Delete car number',
 };

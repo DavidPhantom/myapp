@@ -8,6 +8,7 @@ export default {
   close: 'Закрыть',
   save: 'Сохранить',
   cancel: 'Отмена',
+  search: 'Поиск',
   // Left panel
   home: 'Домашняя страница',
   events: 'События',
@@ -21,4 +22,12 @@ export default {
   deletePlate: 'Удалить',
   showOnlyAllowedNumbers: 'Показать только разрешенные номера',
   findPlateByMask: 'Найти номер по маске',
+  // Alerts
+  addAlert: 'Добавить оповещение',
+  deleteAlert: 'Удалить оповещение',
+  notificationType: 'Тип оповещения',
+  notificationAddress: 'Адрес оповещения',
+  // AllowList
+  addCarNumber: 'Добавить номер',
+  deleteCarNumber: 'Удалить номер',
 };

@@ -1,9 +1,8 @@
 <template>
   <div class="q-pa-md">
-    <q-btn label="Add allow plate" color="primary" @click="addAllowListModalWindowIsOpened = true"
-    />
+    <AllowListAdd ref="allowListAdd" @addAllowListSuccessfully='updateTableAllowList' />
+    <div class="title">{{$t('allowList')}}</div>
     <q-table
-      title="AllowList"
       :data="allowList"
       :columns="columns"
       row-key="id"
@@ -17,7 +16,7 @@
           <q-input class="q-mr-md"
                    outlined
                    dense
-                   debounce="300" v-model="filter.allowPlateFilter" placeholder="Search"
+                   debounce="300" v-model="filter.allowPlateFilter" :placeholder="$t('search')"
                    @input="handleAllowPlateFilter" style="margin-right: 5%">
             <template v-slot:append>
               <q-icon name="search" />
@@ -67,6 +66,15 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <div class="row justify-end">
+      <q-btn
+        class="q-mt-md"
+        unelevated no-caps
+        :label="$t('addCarNumber')"
+        color="primary"
+        icon="add"
+        @click="addAllowListModalWindowIsOpened" />
+    </div>
   </div>
 </template>
 
@@ -75,21 +83,24 @@ import {
   ALLOW_LIST, ROWS, NUMBER_PAGE, ROWS_NUMBER, ALLOW_PLATE,
 } from 'src/store/modules/allowList/getters';
 import {
-  REMOVE_ALLOW_PLATE, ADD_ALLOW_PLATE,
+  REMOVE_ALLOW_PLATE,
   FETCH_CHECKPOINT_ALLOW_LIST_BY_PAGE,
   SAVE_FILTER_BY_ALLOW_PLATE,
 } from 'src/store/modules/allowList/actions';
+
+import AllowListAdd from 'components/AllowList/AllowListAdd';
 
 import {
   notifyGeneral,
 } from '../../src-electron/app/utils/helper';
 
 export const messageAllowPlateRemoveSuccess = 'Allow plate was removed successfully';
-export const messageAllowPlateAddSuccess = 'Allow plate was added successfully';
-export const messageAllowPlateError = 'Enter correct allow plate';
 
 export default {
   name: 'AllowList',
+  components: {
+    AllowListAdd,
+  },
   data() {
     return {
       filter: { allowPlateFilter: '' },
@@ -99,19 +110,16 @@ export default {
         rowsPerPage: 0,
         rowsNumber: 0,
       },
-      addAllowListModalWindowIsOpened: false,
-      allowPlate: '',
-      allowPlateIsIncorrect: false,
       allowList: [],
       columns: [
         {
           name: 'num', required: true, label: '№', align: 'left', field: 'num',
         },
         {
-          name: 'plate', align: 'center', label: 'Allow plate', field: 'plate',
+          name: 'plate', align: 'center', label: this.$t('addCarNumber'), field: 'plate',
         },
         {
-          name: 'action', label: 'Remove', field: 'action',
+          name: 'action', label: this.$t('deleteCarNumber'), field: 'action',
         },
       ],
     };
@@ -147,25 +155,8 @@ export default {
         this.loading = false;
       }
     },
-    async addAllowPlate() {
-      if (this.checkAllowPlate()) {
-        const allowPLate = { plate: this.allowPlate };
-        await this.$store.dispatch(ADD_ALLOW_PLATE, allowPLate);
-        this.allowPlate = '';
-        this.addAllowListModalWindowIsOpened = false;
-        await this.notifyAllowPlateAddSuccess();
-        await this.updateTableAllowList();
-        return true;
-      }
-      return false;
-    },
-    checkAllowPlate() {
-      if (!this.allowPlate) {
-        this.allowPlateIsIncorrect = true;
-        this.notifyAllowPlateError();
-        return false;
-      }
-      return true;
+    addAllowListModalWindowIsOpened() {
+      this.$refs.allowListAdd.show();
     },
     handleAllowPlate() {
       this.allowPlateIsIncorrect = false;
@@ -183,12 +174,6 @@ export default {
       await this.onRequest({
         pagination: this.pagination,
       });
-    },
-    async notifyAllowPlateError() {
-      await notifyGeneral(messageAllowPlateError, 'red', this.$q);
-    },
-    async notifyAllowPlateAddSuccess() {
-      await notifyGeneral(messageAllowPlateAddSuccess, 'green', this.$q);
     },
     async notifyAllowPlateRemoveSuccess() {
       await notifyGeneral(messageAllowPlateRemoveSuccess, 'grey', this.$q);
